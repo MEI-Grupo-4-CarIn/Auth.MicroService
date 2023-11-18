@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Auth.MicroService.Domain.Enums;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace Auth.MicroService.Domain.Entities
@@ -11,7 +12,7 @@ namespace Auth.MicroService.Domain.Entities
         public string Email { get; private set; }
         public string Password { get; private set; }
         public DateTime BirthDate { get; private set; }
-        public int RoleId { get; private set; }
+        public Role RoleId { get; private set; }
         public bool Status { get; private set; }
         public DateTime CreationDateUtc { get; private set; }
         public DateTime? LastUpdateDateUtc { get; private set; }
@@ -23,7 +24,7 @@ namespace Auth.MicroService.Domain.Entities
             string email,
             string password,
             DateTime birthDate,
-            int roleId,
+            Role roleId,
             bool status,
             DateTime creationDateUtc,
             DateTime? lastUpdateDateUtc)
@@ -47,7 +48,7 @@ namespace Auth.MicroService.Domain.Entities
             string email,
             string password,
             DateTime birthDate,
-            int roleId,
+            Role roleId,
             bool status,
             DateTime creationDateUtc,
             DateTime? lastUpdateDateUtc)
@@ -81,8 +82,8 @@ namespace Auth.MicroService.Domain.Entities
                 email,
                 password,
                 birthDate,
-                3,
-                false,
+                Role.User,
+                status: false,
                 DateTime.Now,
                 null);
         }
