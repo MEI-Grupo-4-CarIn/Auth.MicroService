@@ -16,5 +16,13 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         Task UserRegistration(RegisterModel model, CancellationToken ct);
+
+        /// <summary>
+        /// Performs one user login.
+        /// </summary>
+        /// <param name="model">The login model.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task<string> UserLogin(LoginModel model, CancellationToken ct);
     }
 }

@@ -8,5 +8,6 @@ namespace Auth.MicroService.WebApi.Mapping
     public static partial class UserMapper
     {
         public static partial RegisterModel PostRegisterModelToRegisterModel(PostRegisterModel model);
+        public static partial LoginModel PostLoginModelToLoginModel(PostLoginModel model);
     }
 }

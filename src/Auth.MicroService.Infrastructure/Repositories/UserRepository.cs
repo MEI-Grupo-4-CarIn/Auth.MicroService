@@ -1,6 +1,8 @@
 ﻿using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Repositories;
 using Auth.MicroService.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,6 +21,12 @@ namespace Auth.MicroService.Infrastructure.Repositories
         {
             await _authDbContext.Set<User>().AddAsync(user, ct);
             await _authDbContext.SaveChangesAsync(ct);
+        }
+
+        public async Task<User> GetUserByEmail(string email, CancellationToken ct)
+        {
+            return await _authDbContext.Set<User>()
+                .SingleOrDefaultAsync(u => u.Email == email, ct);
         }
     }
 }

@@ -85,6 +85,21 @@ namespace Auth.MicroService.Domain.Entities
                 false,
                 DateTime.Now,
                 null);
-            }
+        }
+
+        public static User SetUserHashedPassword(User user, string hashedPassword)
+        {
+            return new User(
+                user.UserId,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                hashedPassword,
+                user.BirthDate,
+                user.RoleId,
+                user.Status,
+                user.CreationDateUtc,
+                user.LastUpdateDateUtc);
+        }
     }
  }

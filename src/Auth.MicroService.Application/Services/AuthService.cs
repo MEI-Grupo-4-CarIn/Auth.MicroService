@@ -1,8 +1,10 @@
-﻿using Auth.MicroService.Application.Models;
+﻿using Auth.MicroService.Application.JwtUtils;
+using Auth.MicroService.Application.Models;
 using Auth.MicroService.Application.Services.Interfaces;
 using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,15 +15,18 @@ namespace Auth.MicroService.Application.Services
     /// </summary>
     public class AuthService : IAuthService
     {
-        private readonly IPasswordHasher<RegisterModel> _passwordHasher;
+        private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IUserRepository _userRepository;
+        private readonly IJwtProvider _jwtProvider;
 
         public AuthService(
             IUserRepository userRepository,
-            IPasswordHasher<RegisterModel> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            IJwtProvider jwtProvider)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _jwtProvider = jwtProvider;
         }
 
         /// <inheritdoc/>
@@ -31,10 +36,31 @@ namespace Auth.MicroService.Application.Services
                 model.FirstName,
                 model.LastName,
                 model.Email,
-                _passwordHasher.HashPassword(model, model.Password),
+                model.Password,
                 model.BirthDate);
 
-            await _userRepository.AddNewUser(user, ct);
+            var userToInsert = User.SetUserHashedPassword(user, _passwordHasher.HashPassword(user, user.Password));
+
+            await _userRepository.AddNewUser(userToInsert, ct);
+        }
+
+        /// <inheritdoc/>
+        public async Task<string> UserLogin(LoginModel model, CancellationToken ct)
+        {
+            var user = await _userRepository.GetUserByEmail(model.Email, ct);
+
+            if (user is not null)
+            {
+                var passwordResult = _passwordHasher.VerifyHashedPassword(user, user.Password, model.Password);
+
+                if (passwordResult == PasswordVerificationResult.Success)
+                {
+                    var token = _jwtProvider.GenerateJwt(user);
+                    return token;
+                }
+            }
+
+            throw new UnauthorizedAccessException("Invalid login attempt.");
         }
     }
 }
