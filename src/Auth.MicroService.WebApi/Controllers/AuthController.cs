@@ -41,5 +41,21 @@ namespace Auth.MicroService.WebApi.Controllers
 
             return Ok();
         }
+
+        /// <summary>
+        /// Logins a user.
+        /// </summary>
+        /// <param name="model">The user login model.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [HttpPost("login")]
+        public async Task<ActionResult<string>> Login(PostLoginModel model, CancellationToken ct)
+        {
+            var loginModel = UserMapper.PostLoginModelToLoginModel(model);
+
+            var token = await _authService.UserLogin(loginModel, ct);
+
+            return Ok(token);
+        }
     }
 }
