@@ -73,7 +73,9 @@ namespace Auth.MicroService.Domain.Entities
             string lastName,
             string email,
             string password,
-            DateTime birthDate)
+            DateTime birthDate,
+            Role roleId = Role.User,
+            bool status = false)
         {
             return User.Create(
                 null,
@@ -82,8 +84,8 @@ namespace Auth.MicroService.Domain.Entities
                 email,
                 password,
                 birthDate,
-                Role.User,
-                status: false,
+                roleId,
+                status,
                 DateTime.Now,
                 null);
         }
@@ -99,6 +101,21 @@ namespace Auth.MicroService.Domain.Entities
                 user.BirthDate,
                 user.RoleId,
                 user.Status,
+                user.CreationDateUtc,
+                user.LastUpdateDateUtc);
+        }
+
+        public static User SetUserActivation(User user, Role roleId, bool status)
+        {
+            return new User(
+                user.UserId,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                user.Password,
+                user.BirthDate,
+                roleId,
+                status,
                 user.CreationDateUtc,
                 user.LastUpdateDateUtc);
         }
