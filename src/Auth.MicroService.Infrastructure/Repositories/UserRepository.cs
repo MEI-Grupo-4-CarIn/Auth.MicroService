@@ -1,5 +1,6 @@
 ﻿using Auth.MicroService.Application.Models;
 using Auth.MicroService.Domain.Entities;
+using Auth.MicroService.Domain.Enums;
 using Auth.MicroService.Domain.Repositories;
 using Auth.MicroService.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,13 @@ namespace Auth.MicroService.Infrastructure.Repositories
 
         public async Task AddNewUser(User user, CancellationToken ct)
         {
+            var databaseHasUsers = await this.DatabaseHasUsers(ct);
+
+            if (!databaseHasUsers)
+            {
+                // Set the first user to be Admin
+                user = User.SetUserActivation(user, Role.Admin, status: true);
+            }
             await _authDbContext.Set<User>().AddAsync(user, ct);
             await _authDbContext.SaveChangesAsync(ct);
         }
@@ -44,6 +52,12 @@ namespace Auth.MicroService.Infrastructure.Repositories
                     Email = u.Email,
                 })
                 .ToListAsync(ct);
+        }
+
+        private async Task<bool> DatabaseHasUsers (CancellationToken ct)
+        {
+            return await _authDbContext.Set<User>()
+                .AnyAsync(ct);
         }
     }
 }

@@ -14,8 +14,44 @@ namespace Auth.MicroService.Infrastructure.Context.Configuration
                 .HasKey(user => user.UserId);
 
             builder
+                .Property(user => user.FirstName)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(user => user.LastName)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            builder
+                .Property(user => user.Email)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            builder
+                .Property(user => user.Password)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            builder
+                .Property(user => user.BirthDate)
+                .IsRequired();
+
+            builder
+                .Property(user => user.RoleId)
+                .IsRequired();
+
+            builder
+                .Property(user => user.Status)
+                .IsRequired();
+
+            builder
                 .Property(user => user.CreationDateUtc)
-                .HasDefaultValue();
+                .HasDefaultValueSql("GETDATE()");
+
+            builder
+                .Property(user => user.LastUpdateDateUtc)
+                .IsRequired(false);
         }
     }
 }
