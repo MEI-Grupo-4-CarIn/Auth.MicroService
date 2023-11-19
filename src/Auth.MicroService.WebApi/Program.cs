@@ -5,7 +5,6 @@ using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Repositories;
 using Auth.MicroService.Infrastructure.Context;
 using Auth.MicroService.Infrastructure.Repositories;
-using Auth.MicroService.WebApi.OptionsSetup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Auth.MicroService.WebApi
 {
@@ -25,10 +26,19 @@ namespace Auth.MicroService.WebApi
             var config = builder.Configuration;
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer();
-
-            builder.Services.ConfigureOptions<JwtOptionsSetup>();
-            builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = config["JwtSettings:Issuer"],
+                        ValidAudience = config["JwtSettings:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"]))
+                    };
+                });
 
             builder.Services.AddAuthorization();
 
@@ -37,6 +47,7 @@ namespace Auth.MicroService.WebApi
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             builder.Services.AddSingleton<IJwtProvider, JwtProvider>();

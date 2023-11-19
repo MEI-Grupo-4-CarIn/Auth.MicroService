@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Auth.MicroService.Application.Services
 {
     /// <summary>
-    /// The authentication service
+    /// The authentication service.
     /// </summary>
     public class AuthService : IAuthService
     {
