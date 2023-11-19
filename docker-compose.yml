@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+ web_api:
+  build: . # build the Docker image 
+  container_name: auth_microservice
+  ports:
+    - "5000:80"
+  depends_on:
+    - sql-server-docker
+ sql-server-docker:
+  image: "mcr.microsoft.com/mssql/server:2022-latest"
+  container_name: sql_server2022
+  ports:
+    - "1434:1433"
+  environment:
+    - ACCEPT_EULA=y
+    - SA_PASSWORD=A&VeryComplex123Password
+  volumes:
+    - sql_data:/var/opt/mssql
+volumes:
+ sql_data:
