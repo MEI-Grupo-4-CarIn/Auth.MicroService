@@ -14,6 +14,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
 using System;
 using System.Text;
 
@@ -26,6 +28,15 @@ namespace Auth.MicroService.WebApi
             var builder = WebApplication.CreateBuilder(args);
 
             var config = builder.Configuration;
+
+            Log.Logger = new LoggerConfiguration()
+               .WriteTo.Console()
+               .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(config["Elasticsearch:Url"]))
+               {
+                   AutoRegisterTemplate = true,
+                   IndexFormat = "auth-microservice-{0:yyyy.MM.dd}"
+               })
+               .CreateLogger();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>

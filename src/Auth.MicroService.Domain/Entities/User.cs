@@ -1,6 +1,6 @@
 ﻿using Auth.MicroService.Domain.Enums;
 using System;
-using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace Auth.MicroService.Domain.Entities
 {
@@ -53,7 +53,34 @@ namespace Auth.MicroService.Domain.Entities
             DateTime creationDateUtc,
             DateTime? lastUpdateDateUtc)
         {
-            // Validations
+            if (string.IsNullOrEmpty(firstName))
+            {
+                throw new ArgumentException("First name cannot be null or empty.", nameof(firstName));
+            }
+            if (string.IsNullOrEmpty(lastName))
+            {
+                throw new ArgumentException("Last name cannot be null or empty.", nameof(lastName));
+            }
+            if (string.IsNullOrEmpty(email))
+            {
+                throw new ArgumentException("Email cannot be null or empty.", nameof(email));
+            }
+            if (!IsValidEmail(email))
+            {
+                throw new ArgumentException("Email is not in a valid format.", nameof(email));
+            }
+            if (string.IsNullOrEmpty(password))
+            {
+                throw new ArgumentException("Password cannot be null or empty.", nameof(password));
+            }
+            if (password.Length < 8)
+            {
+                throw new ArgumentException("Password must have at least 8 characters.", nameof(password));
+            }
+            if (birthDate > DateTime.UtcNow)
+            {
+                throw new ArgumentException("Birth date cannot be a future date", nameof(birthDate));
+            }
 
             return new User(
                 userId,
@@ -118,6 +145,15 @@ namespace Auth.MicroService.Domain.Entities
                 status,
                 user.CreationDateUtc,
                 user.LastUpdateDateUtc);
+        }
+
+        private static bool IsValidEmail(string email)
+        {
+            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+            if (string.IsNullOrEmpty(email))
+                return false;
+            Regex regex = new Regex(emailPattern);
+            return regex.IsMatch(email);
         }
     }
  }
