@@ -1,7 +1,9 @@
-﻿using Auth.MicroService.Application.Services.Interfaces;
+﻿using Auth.MicroService.Application.Models;
+using Auth.MicroService.Application.Services.Interfaces;
 using Auth.MicroService.WebApi.Mapping;
 using Auth.MicroService.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +39,17 @@ namespace Auth.MicroService.WebApi.Controllers
         {
             var registerModel = UserMapper.PostRegisterModelToRegisterModel(model);
 
-            await _authService.UserRegistration(registerModel, ct);
+            try
+            {
+                await _authService.UserRegistration(registerModel, ct);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while registering the user.");
+                return StatusCode(500, "An error occurred while registering the user.");
+            }
+
+            Log.Information("User {Email} has registered successfully.", registerModel.Email);
 
             return Ok();
         }
@@ -52,8 +64,19 @@ namespace Auth.MicroService.WebApi.Controllers
         public async Task<ActionResult<string>> Login(PostLoginModel model, CancellationToken ct)
         {
             var loginModel = UserMapper.PostLoginModelToLoginModel(model);
+            string token;
 
-            var token = await _authService.UserLogin(loginModel, ct);
+            try
+            {
+                token = await _authService.UserLogin(loginModel, ct);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while logging the user {Email} in.", loginModel.Email);
+                return StatusCode(500, "An error occurred while logging the user in.");
+            }
+
+            Log.Information("User {Email} has logging in successfully.", loginModel.Email);
 
             return Ok(token);
         }
