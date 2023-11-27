@@ -8,5 +8,7 @@ namespace Auth.MicroService.Application.Services.Interfaces
     public interface IUsersService
     {
         Task<IEnumerable<UserInfo>> GetAllUsersForApproval(CancellationToken ct);
+
+        Task<bool> DeleteUser(int id, CancellationToken ct);
     }
 }

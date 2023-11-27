@@ -25,5 +25,20 @@ namespace Auth.MicroService.Application.Services
         {
             return await _userRepository.GetAllInactiveUsers(ct);
         }
+
+        public async Task<bool> DeleteUser(int id, CancellationToken ct)
+        {
+            var user = await _userRepository.GetUserById(id, ct);
+
+            if(user is null)
+            {
+                return false;
+            }
+
+            var deactivatedUser = User.SetUserActivation(user, null, false);
+
+            await _userRepository.UpdateUser(deactivatedUser, ct);
+            return true;
+        }
     }
 }
