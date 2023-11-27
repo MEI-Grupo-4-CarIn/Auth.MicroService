@@ -73,7 +73,7 @@ namespace Auth.MicroService.WebApi.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while logging the user {Email} in.", loginModel.Email);
-                return StatusCode(500, "An error occurred while logging the user in.");
+                return StatusCode(500, "An error occurred while logging the user in: \n" + ex.Message);
             }
 
             Log.Information("User {Email} has logging in successfully.", loginModel.Email);
