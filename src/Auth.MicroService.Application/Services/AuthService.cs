@@ -51,8 +51,8 @@ namespace Auth.MicroService.Application.Services
 
             if (user is not null)
             {
+                // Verify the password
                 var passwordResult = _passwordHasher.VerifyHashedPassword(user, user.Password, model.Password);
-
                 if (passwordResult == PasswordVerificationResult.Success)
                 {
                     var token = _jwtProvider.GenerateJwt(user);
@@ -62,5 +62,41 @@ namespace Auth.MicroService.Application.Services
 
             throw new UnauthorizedAccessException("Invalid login attempt.");
         }
+
+        /// <inheritdoc/>
+        public bool ValidateToken(string token)
+        {
+            return _jwtProvider.ValidateToken(token);
+        }
+
+        /// <inheritdoc/>
+        public async Task<string> RefreshToken(string token, CancellationToken ct)
+        {
+            var isValid = ValidateToken(token);
+
+            if (!isValid)
+            {
+                return null;
+            }
+
+            var userId = _jwtProvider.GetUserIdFromToken(token);
+
+            if (userId is null)
+            {
+                return null;
+            }
+
+            var user = await _userRepository.GetUserById(userId.Value, ct);
+
+            if (user is null)
+            {
+                return null;
+            }
+
+            // Generate a new token
+            var newToken = _jwtProvider.GenerateJwt(user);
+            return newToken;
+        }
+
     }
 }
