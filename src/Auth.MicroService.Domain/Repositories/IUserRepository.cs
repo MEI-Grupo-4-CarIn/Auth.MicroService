@@ -11,6 +11,8 @@ namespace Auth.MicroService.Domain.Repositories
 
         Task<User> GetUserByEmail(string email, CancellationToken ct);
 
+        Task<User> GetUserById(int id, CancellationToken ct);
+
         Task<IEnumerable<UserInfo>> GetAllInactiveUsers(CancellationToken ct);
     }
 }

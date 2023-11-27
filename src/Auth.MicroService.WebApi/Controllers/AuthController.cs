@@ -80,5 +80,46 @@ namespace Auth.MicroService.WebApi.Controllers
 
             return Ok(token);
         }
+
+        /// <summary>
+        /// Validates one token.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [HttpPost("validateToken")]
+        public ActionResult ValidateToken(string token)
+        {
+            var isValid = _authService.ValidateToken(token);
+
+            if (isValid)
+            {
+                return Ok("Token is valid.");
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        /// <summary>
+        /// Refreshes one token.
+        /// </summary>
+        /// <param name="token">The token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [HttpPost("refreshToken")]
+        public async Task<ActionResult<string>> RefreshToken(string token, CancellationToken ct)
+        {
+            var newToken = await _authService.RefreshToken(token, ct);
+
+            if (newToken is not null)
+            {
+                return Ok(newToken);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
     }
 }

@@ -40,6 +40,13 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 .SingleOrDefaultAsync(u => u.Email == email, ct);
         }
 
+        public async Task<User> GetUserById(int id, CancellationToken ct)
+        {
+            return await _authDbContext.Set<User>()
+                .AsNoTracking()
+                .SingleOrDefaultAsync(u => u.UserId == id, ct);
+        }
+
         public async Task<IEnumerable<UserInfo>> GetAllInactiveUsers(CancellationToken ct)
         {
             return await _authDbContext.Set<User>()
