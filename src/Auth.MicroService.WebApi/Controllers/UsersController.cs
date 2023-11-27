@@ -27,9 +27,8 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
-        /// Registers a new user.
+        /// Gets the list of users wating for approval.
         /// </summary>
-        /// <param name="model">The user registration model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin")]
