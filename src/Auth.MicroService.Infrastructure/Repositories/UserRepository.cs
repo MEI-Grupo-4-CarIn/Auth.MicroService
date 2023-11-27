@@ -57,6 +57,7 @@ namespace Auth.MicroService.Infrastructure.Repositories
                     UserId = u.UserId.Value,
                     UserFullName = u.FirstName + u.LastName,
                     Email = u.Email,
+                    Role = u.RoleId
                 })
                 .ToListAsync(ct);
         }
