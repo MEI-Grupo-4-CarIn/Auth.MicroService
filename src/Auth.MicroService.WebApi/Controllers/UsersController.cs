@@ -3,6 +3,7 @@ using Auth.MicroService.WebApi.Mapping;
 using Auth.MicroService.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,6 +40,27 @@ namespace Auth.MicroService.WebApi.Controllers
             var usersList = await _usersService.GetAllUsersForApproval(ct);
 
             return Ok(usersList);
+        }
+
+        /// <summary>
+        /// Delete user.
+        /// </summary>
+        /// <param name="id">The user id.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Roles = "Admin")]
+        [HttpGet("delete-user")]
+        public async Task<ActionResult> DeleteUser(int id, CancellationToken ct)
+        {
+            bool result = await _usersService.DeleteUser(id, ct);
+
+            if (result == false)
+            {
+                Log.Error($"An error occurred while deactivating the user with id: {id}.");
+                return StatusCode(500, $"An error occurred while deactivating the user with id: {id}.");
+            }
+
+            return Ok("User deactivated.");
         }
     }
 }

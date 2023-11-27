@@ -132,7 +132,7 @@ namespace Auth.MicroService.Domain.Entities
                 user.LastUpdateDateUtc);
         }
 
-        public static User SetUserActivation(User user, Role roleId, bool status)
+        public static User SetUserActivation(User user, Role? roleId, bool status)
         {
             return new User(
                 user.UserId,
@@ -141,10 +141,24 @@ namespace Auth.MicroService.Domain.Entities
                 user.Email,
                 user.Password,
                 user.BirthDate,
-                roleId,
+                roleId ?? user.RoleId,
                 status,
                 user.CreationDateUtc,
                 user.LastUpdateDateUtc);
+        }
+
+        public User Update(
+            string firstName,
+            string lastName,          
+            Role roleId,
+            bool status)
+        {
+            this.FirstName = firstName;
+            this.LastName = lastName;
+            this.RoleId = roleId;
+            this.Status = status;
+
+            return this;
         }
 
         private static bool IsValidEmail(string email)
