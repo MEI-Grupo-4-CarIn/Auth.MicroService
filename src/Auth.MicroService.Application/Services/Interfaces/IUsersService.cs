@@ -13,5 +13,7 @@ namespace Auth.MicroService.Application.Services.Interfaces
         Task ApproveUser(ApproveUserModel model, string token, CancellationToken ct);
 
         Task<bool> DeleteUser(int id, CancellationToken ct);
+
+        Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct);
     }
 }

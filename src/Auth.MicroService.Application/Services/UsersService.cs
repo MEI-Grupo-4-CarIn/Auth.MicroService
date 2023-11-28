@@ -78,6 +78,11 @@ namespace Auth.MicroService.Application.Services
             return true;
         }
 
+        public async Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct)
+        {
+            return await _userRepository.GetAllUsers(ct);
+        }
+
         private void CheckUserHierarchy(Role userRole, Role roleToApply)
         {
             if ((int)roleToApply < (int)userRole)
