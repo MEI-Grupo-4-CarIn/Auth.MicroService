@@ -62,6 +62,23 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
+        public async Task UpdateUser(User user, CancellationToken ct)
+        {
+            var existingUser = await _authDbContext.Set<User>()
+                .SingleOrDefaultAsync(u => u.UserId == user.UserId);              
+               
+            if(existingUser != null)
+            {
+                existingUser.Update(
+                    user.FirstName,
+                    user.LastName,
+                    user.RoleId,
+                    user.Status);
+            }
+
+            await _authDbContext.SaveChangesAsync(ct);
+        }
+
         private async Task<bool> DatabaseHasUsers (CancellationToken ct)
         {
             return await _authDbContext.Set<User>()
