@@ -1,5 +1,4 @@
-﻿using Auth.MicroService.Application.Models;
-using Auth.MicroService.Application.Services.Interfaces;
+﻿using Auth.MicroService.Application.Services.Interfaces;
 using Auth.MicroService.WebApi.Mapping;
 using Auth.MicroService.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;

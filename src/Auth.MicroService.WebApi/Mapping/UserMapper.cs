@@ -9,5 +9,6 @@ namespace Auth.MicroService.WebApi.Mapping
     {
         public static partial RegisterModel PostRegisterModelToRegisterModel(PostRegisterModel model);
         public static partial LoginModel PostLoginModelToLoginModel(PostLoginModel model);
+        public static partial ApproveUserModel PostApproveUserModelToApproveUserModel(PostApproveUserModel model);
     }
 }
