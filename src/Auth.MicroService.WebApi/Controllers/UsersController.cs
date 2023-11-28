@@ -108,7 +108,7 @@ namespace Auth.MicroService.WebApi.Controllers
         {
             if (HttpContext.Request.Headers.TryGetValue("Authorization", out var authHeader))
             {
-                var token = authHeader.ToString().Split(' ')[0]; // Bearer <token>
+                var token = authHeader.ToString().Split(' ')[1]; // Bearer <token>
                 return token;
             }
             else
