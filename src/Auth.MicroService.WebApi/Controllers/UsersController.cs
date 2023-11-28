@@ -1,9 +1,11 @@
 ﻿using Auth.MicroService.Application.Services.Interfaces;
+using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.WebApi.Mapping;
 using Auth.MicroService.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -61,6 +63,18 @@ namespace Auth.MicroService.WebApi.Controllers
             }
 
             return Ok("User deactivated.");
+        }
+
+        /// <summary>
+        /// List all users.
+        /// </summary>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [HttpGet("all-users")]
+        public async Task<ActionResult<IEnumerable<UserInfo>>> GetAllUsers(CancellationToken ct)
+        {
+            var usersList = await _usersService.GetAllUsers(ct);
+            return Ok(usersList);
         }
     }
 }
