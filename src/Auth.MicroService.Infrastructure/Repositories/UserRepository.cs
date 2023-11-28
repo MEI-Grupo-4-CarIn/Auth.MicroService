@@ -78,6 +78,20 @@ namespace Auth.MicroService.Infrastructure.Repositories
             await _authDbContext.SaveChangesAsync(ct);
         }
 
+        public async Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct)
+        {           
+            return await _authDbContext.Set<User>()
+                .AsNoTracking()                
+                .Select(u => new UserInfo
+                {
+                    UserId = u.UserId.Value,
+                    UserFullName = $"{u.FirstName} {u.LastName}",
+                    Email = u.Email,
+                    Role = u.RoleId
+                })
+                .ToListAsync(ct);
+        }
+
         private async Task<bool> DatabaseHasUsers (CancellationToken ct)
         {
             return await _authDbContext.Set<User>()

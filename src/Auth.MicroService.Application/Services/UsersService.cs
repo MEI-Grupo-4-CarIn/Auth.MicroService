@@ -40,5 +40,10 @@ namespace Auth.MicroService.Application.Services
             await _userRepository.UpdateUser(deactivatedUser, ct);
             return true;
         }
+
+        public async Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct)
+        {
+            return await _userRepository.GetAllUsers(ct);
+        }
     }
 }
