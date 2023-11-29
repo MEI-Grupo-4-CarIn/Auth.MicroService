@@ -19,7 +19,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"firstName\": \"Rafael\",\r\n  \"lastName\": \"Azevedo\",\r\n  \"email\": \"rafael1234@email.com\",\r\n  \"password\": \"12345678\",\r\n  \"birthDate\": \"1977-11-10\"\r\n}",
+									"raw": "{\r\n    \"firstName\": \"Rafael\",\r\n    \"lastName\": \"Azevedo\",\r\n    \"email\": \"rafael123@email.com\",\r\n    \"password\": \"12345678\",\r\n    \"birthDate\": \"1977-11-10\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -49,7 +49,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"email\": \"manuel@email.com\",\r\n  \"password\": \"12345678\"\r\n}",
+									"raw": "{\r\n    \"email\": \"rafael123@email.com\",\r\n    \"password\": \"12345678\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -85,7 +85,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImVtYW51YWVsMTIzNEBlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTcwMTExMzc1MSwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9.iu2T_CPK7qSXPs8o8m93xYWEoLZGrScVUZvNqSjxBHo",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImVtYW51YWVsMTIzNEBlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTcwMTIwOTIxOSwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9.ViiZHSAMFbbYNRtMfrYLt3PXiM0ViZfEmGKNxNPFZUE",
 											"type": "string"
 										}
 									]
@@ -103,6 +103,46 @@
 										"api",
 										"users",
 										"waiting-for-approval-list"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ApproveUser",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjMiLCJlbWFpbCI6InJhZmFlbDEyMzRAZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiTWFuYWdlciIsImV4cCI6MTcwMTIxODM4NywiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9.lgu5Lh2HbIucizoF25cj9RhCgZne09K7Tpk72TAnHxY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\": 4,\r\n    \"role\": 1\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://localhost:44383/api/users/approve-user",
+									"protocol": "https",
+									"host": [
+										"localhost"
+									],
+									"port": "44383",
+									"path": [
+										"api",
+										"users",
+										"approve-user"
 									]
 								}
 							},

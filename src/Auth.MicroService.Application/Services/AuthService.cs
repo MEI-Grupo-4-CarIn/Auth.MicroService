@@ -49,22 +49,29 @@ namespace Auth.MicroService.Application.Services
         {
             var user = await _userRepository.GetUserByEmail(model.Email, ct);
 
-            if (user is not null)
+            if (user is null)
             {
-                // Verify the password
-                var passwordResult = _passwordHasher.VerifyHashedPassword(user, user.Password, model.Password);
-                if (passwordResult == PasswordVerificationResult.Success)
-                {
-                    var token = _jwtProvider.GenerateJwt(user);
-                    return token;
-                }
+                throw new UnauthorizedAccessException("Invalid login attempt.");
             }
 
-            throw new UnauthorizedAccessException("Invalid login attempt.");
+            // Verify the password
+            var passwordResult = _passwordHasher.VerifyHashedPassword(user, user.Password, model.Password);
+            if (passwordResult != PasswordVerificationResult.Success)
+            {
+                throw new UnauthorizedAccessException("Invalid login attempt.");
+            }
+
+            if (user.Status == false)
+            {
+                throw new UnauthorizedAccessException("Inactive user.");
+            }
+
+            var token = _jwtProvider.GenerateJwt(user);
+            return token;
         }
 
         /// <inheritdoc/>
-        public bool ValidateToken(string token)
+        public bool ValidateToken(string token, CancellationToken ct)
         {
             return _jwtProvider.ValidateToken(token);
         }
@@ -72,7 +79,7 @@ namespace Auth.MicroService.Application.Services
         /// <inheritdoc/>
         public async Task<string> RefreshToken(string token, CancellationToken ct)
         {
-            var isValid = ValidateToken(token);
+            var isValid = ValidateToken(token, ct);
 
             if (!isValid)
             {

@@ -29,8 +29,9 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// Validates one token.
         /// </summary>
         /// <param name="token">The token.</param>
+        /// <param name="ct">The cancellation token.</param>
         /// <returns>A <see cref="bool"/> whether the token is valid or not.</returns>
-        bool ValidateToken(string token);
+        bool ValidateToken(string token, CancellationToken ct);
 
         /// <summary>
         /// Refreshes one token.

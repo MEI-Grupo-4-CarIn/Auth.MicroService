@@ -5,6 +5,7 @@ using Auth.MicroService.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,9 +31,8 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
-        /// Registers a new user.
+        /// Gets the list of users wating for approval.
         /// </summary>
-        /// <param name="model">The user registration model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin")]
@@ -45,13 +45,40 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
+        /// Allows the administrator or manager to approve one user.
+        /// </summary>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpPost("approve-user")]
+        public async Task<ActionResult> ApproveUser(PostApproveUserModel model, CancellationToken ct)
+        {
+            try
+            {
+                var approveUserModel = UserMapper.PostApproveUserModelToApproveUserModel(model);
+
+                string token = GetTokenFromHeader();
+
+                await _usersService.ApproveUser(approveUserModel, token, ct);
+
+                Log.Information($"User with id: {model.Id} approved with success.");
+                return Ok($"User with id: {model.Id} approved with success.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while approving user with id: {model.Id}.");
+                return Problem($"Error while approving user with id: {model.Id}.\n" + ex.Message, null, 500);
+            }
+        }
+
+        /// <summary>
         /// Delete user.
         /// </summary>
         /// <param name="id">The user id.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin")]
-        [HttpGet("delete-user")]
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpDelete("delete-user")]
         public async Task<ActionResult> DeleteUser(int id, CancellationToken ct)
         {
             bool result = await _usersService.DeleteUser(id, ct);
@@ -75,6 +102,19 @@ namespace Auth.MicroService.WebApi.Controllers
         {
             var usersList = await _usersService.GetAllUsers(ct);
             return Ok(usersList);
+        }
+
+        private string GetTokenFromHeader()
+        {
+            if (HttpContext.Request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                var token = authHeader.ToString().Split(' ')[1]; // Bearer <token>
+                return token;
+            }
+            else
+            {
+                throw new Exception("Authorization header not found");
+            }
         }
     }
 }

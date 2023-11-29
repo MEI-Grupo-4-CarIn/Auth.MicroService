@@ -55,8 +55,9 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 .Select(u => new UserInfo
                 {
                     UserId = u.UserId.Value,
-                    UserFullName = u.FirstName + u.LastName,
+                    UserFullName = $"{u.FirstName} {u.LastName}",
                     Email = u.Email,
+                    Role = u.RoleId
                 })
                 .ToListAsync(ct);
         }

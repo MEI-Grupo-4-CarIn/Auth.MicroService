@@ -1,4 +1,5 @@
 ﻿using Auth.MicroService.Domain.Entities;
+using Auth.MicroService.Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -83,6 +84,24 @@ namespace Auth.MicroService.Application.JwtUtils
             if (int.TryParse(userIdClaim.Value, out var userId))
             {
                 return userId;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public Role? GetUserRoleFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+
+            // Get the user role from the token
+            var userRoleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
+
+            if (userRoleClaim is not null && Enum.TryParse<Role>(userRoleClaim.Value, out var role))
+            {
+                return role;
             }
             else
             {
