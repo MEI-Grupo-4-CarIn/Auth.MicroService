@@ -71,7 +71,7 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public bool ValidateToken(string token)
+        public bool ValidateToken(string token, CancellationToken ct)
         {
             return _jwtProvider.ValidateToken(token);
         }
@@ -79,7 +79,7 @@ namespace Auth.MicroService.Application.Services
         /// <inheritdoc/>
         public async Task<string> RefreshToken(string token, CancellationToken ct)
         {
-            var isValid = ValidateToken(token);
+            var isValid = ValidateToken(token, ct);
 
             if (!isValid)
             {

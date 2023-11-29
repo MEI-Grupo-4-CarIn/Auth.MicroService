@@ -1,6 +1,7 @@
 ﻿using Auth.MicroService.Application.Services.Interfaces;
 using Auth.MicroService.WebApi.Mapping;
 using Auth.MicroService.WebApi.Models;
+using Auth.MicroService.WebApi.Models.Response;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System;
@@ -45,7 +46,11 @@ namespace Auth.MicroService.WebApi.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while registering the user.");
-                return StatusCode(500, "An error occurred while registering the user.");
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = "An error occurred while registering the user.",
+                    Message = ex.Message
+                });
             }
 
             Log.Information("User {Email} has registered successfully.", registerModel.Email);
@@ -72,31 +77,40 @@ namespace Auth.MicroService.WebApi.Controllers
             catch (Exception ex)
             {
                 Log.Error(ex, "An error occurred while logging the user {Email} in.", loginModel.Email);
-                return StatusCode(500, "An error occurred while logging the user in: \n" + ex.Message);
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"An error occurred while logging the user {loginModel.Email} in.",
+                    Message = ex.Message
+                });
             }
 
             Log.Information("User {Email} has logging in successfully.", loginModel.Email);
 
-            return Ok(token);
+            return Ok(new { Token = token });
         }
 
         /// <summary>
         /// Validates one token.
         /// </summary>
         /// <param name="token">The token.</param>
+        /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("validateToken")]
-        public ActionResult ValidateToken(string token)
+        public ActionResult ValidateToken(string token, CancellationToken ct)
         {
-            var isValid = _authService.ValidateToken(token);
+            var isValid = _authService.ValidateToken(token, ct);
 
             if (isValid)
             {
-                return Ok("Token is valid.");
+                Log.Information("A token has been successfully validated.");
+                return Ok(new { Message = "Token is valid."});
             }
             else
             {
-                return Unauthorized();
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"An error occurred while sending the request.",
+                });
             }
         }
 
@@ -104,6 +118,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// Refreshes one token.
         /// </summary>
         /// <param name="token">The token.</param>
+        /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("refreshToken")]
         public async Task<ActionResult<string>> RefreshToken(string token, CancellationToken ct)
@@ -119,6 +134,5 @@ namespace Auth.MicroService.WebApi.Controllers
                 return Unauthorized();
             }
         }
-
     }
 }

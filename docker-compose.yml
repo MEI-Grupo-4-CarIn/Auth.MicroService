@@ -4,7 +4,7 @@ services:
     build: . # build the Docker image 
     container_name: auth_microservice
     ports:
-      - "5000:80"
+      - "5001:80"
     depends_on:
       - sql-server-docker
       - elasticsearch
