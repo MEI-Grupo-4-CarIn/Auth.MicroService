@@ -8,6 +8,6 @@ namespace Auth.MicroService.WebApi.Models
         [JsonRequired]
         public int Id { get; set; }
 
-        public Role Role { get; set; }
+        public Role? Role { get; set; }
     }
 }

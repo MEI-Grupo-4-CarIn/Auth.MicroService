@@ -53,7 +53,7 @@ namespace Auth.MicroService.WebApi.Controllers
                 });
             }
 
-            Log.Information("User {Email} has registered successfully.", registerModel.Email);
+            Log.Information("User '{Email}' has registered successfully.", registerModel.Email);
 
             return Ok();
         }
@@ -76,15 +76,15 @@ namespace Auth.MicroService.WebApi.Controllers
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "An error occurred while logging the user {Email} in.", loginModel.Email);
+                Log.Error(ex, "An error occurred while logging the user '{Email}' in.", loginModel.Email);
                 return BadRequest(new ErrorResponseModel
                 {
-                    Error = $"An error occurred while logging the user {loginModel.Email} in.",
+                    Error = $"An error occurred while logging the user '{loginModel.Email}' in.",
                     Message = ex.Message
                 });
             }
 
-            Log.Information("User {Email} has logging in successfully.", loginModel.Email);
+            Log.Information("User '{Email}' has logging in successfully.", loginModel.Email);
 
             return Ok(new { Token = token });
         }

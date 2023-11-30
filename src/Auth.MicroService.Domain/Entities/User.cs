@@ -101,7 +101,7 @@ namespace Auth.MicroService.Domain.Entities
             string email,
             string password,
             DateTime birthDate,
-            Role roleId = Role.User,
+            Role roleId = Role.Driver,
             bool status = false)
         {
             return User.Create(
