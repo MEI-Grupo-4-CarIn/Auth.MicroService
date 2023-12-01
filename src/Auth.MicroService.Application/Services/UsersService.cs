@@ -42,6 +42,11 @@ namespace Auth.MicroService.Application.Services
                 throw new Exception("User not found.");
             }
 
+            if (user.Status == true)
+            {
+                throw new Exception("User already active.");
+            }
+
             // Get user role from token
             var userRole = _jwtProvider.GetUserRoleFromToken(token);
             if (userRole is null)
@@ -63,19 +68,26 @@ namespace Auth.MicroService.Application.Services
             await _userRepository.UpdateUser(updatedUser, ct);
         }
 
-        public async Task<bool> DeleteUser(int id, CancellationToken ct)
+        public async Task DeleteUser(int id, string token, CancellationToken ct)
         {
             var user = await _userRepository.GetUserById(id, ct);
 
             if(user is null)
             {
-                return false;
+                throw new Exception("User not found.");
             }
+
+            var userRole = _jwtProvider.GetUserRoleFromToken(token);
+            if (userRole is null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            CheckUserHierarchy(userRole.Value, user.RoleId, isDelete: true);
 
             var deactivatedUser = User.SetUserActivation(user, null, status: false);
 
             await _userRepository.UpdateUser(deactivatedUser, ct);
-            return true;
         }
 
         public async Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct)
@@ -83,10 +95,15 @@ namespace Auth.MicroService.Application.Services
             return await _userRepository.GetAllUsers(ct);
         }
 
-        private void CheckUserHierarchy(Role userRole, Role roleToApply)
+        private void CheckUserHierarchy(Role userRole, Role roleToApply, bool isDelete = false)
         {
             if ((int)roleToApply < (int)userRole)
             {
+                if (isDelete)
+                {
+                    throw new Exception("You cannot deactivate a user with higher role than yours.");
+                }
+
                 throw new Exception("You cannot assign a role that is higher than yours.");
             }
         }

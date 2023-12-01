@@ -2,6 +2,7 @@
 using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.WebApi.Mapping;
 using Auth.MicroService.WebApi.Models;
+using Auth.MicroService.WebApi.Models.Response;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
@@ -61,13 +62,17 @@ namespace Auth.MicroService.WebApi.Controllers
 
                 await _usersService.ApproveUser(approveUserModel, token, ct);
 
-                Log.Information($"User with id: {model.Id} approved with success.");
-                return Ok($"User with id: {model.Id} approved with success.");
+                Log.Information($"User with id '{model.Id}' approved with success.");
+                return Ok($"User with id '{model.Id}' approved with success.");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while approving user with id: {model.Id}.");
-                return Problem($"Error while approving user with id: {model.Id}.\n" + ex.Message, null, 500);
+                Log.Error(ex, $"Error while approving user with id '{model.Id}'.");
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"Error while approving user with id '{model.Id}'.",
+                    Message = ex.Message
+                });
             }
         }
 
@@ -81,15 +86,23 @@ namespace Auth.MicroService.WebApi.Controllers
         [HttpDelete("delete-user")]
         public async Task<ActionResult> DeleteUser(int id, CancellationToken ct)
         {
-            bool result = await _usersService.DeleteUser(id, ct);
-
-            if (result == false)
+            try
             {
-                Log.Error($"An error occurred while deactivating the user with id: {id}.");
-                return StatusCode(500, $"An error occurred while deactivating the user with id: {id}.");
-            }
+                string token = GetTokenFromHeader();
 
-            return Ok("User deactivated.");
+                await _usersService.DeleteUser(id, token, ct);
+
+                return Ok($"User with id '{id}' deactivated.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while deactivating the user with id '{id}'.", id);
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"An error occurred while deactivating the user with id '{id}'.",
+                    Message = ex.Message
+                });
+            }
         }
 
         /// <summary>
@@ -97,7 +110,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// </summary>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [HttpGet("all-users")]
+        [HttpGet("all-users-list")]
         public async Task<ActionResult<IEnumerable<UserInfo>>> GetAllUsers(CancellationToken ct)
         {
             var usersList = await _usersService.GetAllUsers(ct);

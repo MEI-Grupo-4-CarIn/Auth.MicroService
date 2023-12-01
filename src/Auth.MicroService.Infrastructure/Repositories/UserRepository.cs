@@ -1,6 +1,6 @@
-﻿using Auth.MicroService.Application.Models;
-using Auth.MicroService.Domain.Entities;
+﻿using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Enums;
+using Auth.MicroService.Domain.Extensions;
 using Auth.MicroService.Domain.Repositories;
 using Auth.MicroService.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -22,11 +22,11 @@ namespace Auth.MicroService.Infrastructure.Repositories
 
         public async Task AddNewUser(User user, CancellationToken ct)
         {
-            var databaseHasUsers = await this.DatabaseHasUsers(ct);
+            var databaseHasActiveUsers = await this.DatabaseHasActiveUsers(ct);
 
-            if (!databaseHasUsers)
+            if (!databaseHasActiveUsers)
             {
-                // Set the first user to be Admin
+                // Set the first user to be Admin and Status = true
                 user = User.SetUserActivation(user, Role.Admin, status: true);
             }
             await _authDbContext.Set<User>().AddAsync(user, ct);
@@ -57,7 +57,8 @@ namespace Auth.MicroService.Infrastructure.Repositories
                     UserId = u.UserId.Value,
                     UserFullName = $"{u.FirstName} {u.LastName}",
                     Email = u.Email,
-                    Role = u.RoleId
+                    Role = u.RoleId.GetDescription(),
+                    Status = u.Status
                 })
                 .ToListAsync(ct);
         }
@@ -88,15 +89,16 @@ namespace Auth.MicroService.Infrastructure.Repositories
                     UserId = u.UserId.Value,
                     UserFullName = $"{u.FirstName} {u.LastName}",
                     Email = u.Email,
-                    Role = u.RoleId
+                    Role = u.RoleId.GetDescription(),
+                    Status = u.Status
                 })
                 .ToListAsync(ct);
         }
 
-        private async Task<bool> DatabaseHasUsers (CancellationToken ct)
+        private async Task<bool> DatabaseHasActiveUsers (CancellationToken ct)
         {
             return await _authDbContext.Set<User>()
-                .AnyAsync(ct);
+                .AnyAsync(u => u.Status == true, ct);
         }
     }
 }
