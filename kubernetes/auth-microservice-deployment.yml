@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
  name: auth-microservice
 spec:
- replicas: 1
+ replicas: 3
  selector:
    matchLabels:
      app: auth-microservice
@@ -15,10 +15,11 @@ spec:
      containers:
      - name: auth-microservice
        image: duartefernandes/auth-microservice:3
+       imagePullPolicy: Always
        ports:
        - containerPort: 80
        env:
        - name: ConnectionStrings__DefaultConnection
-         value: "Server=sql-server;Database=Auth.MicroService.Database;User Id=sa;Password=A&VeryComplex123Password;TrustServerCertificate=True"
+         value: "Server=sql-server,1433;Database=Auth.MicroService.Database;User Id=sa;Password=A&VeryComplex123Password;TrustServerCertificate=True"
        - name: Elasticsearch__Url
          value: "http://elasticsearch:9200"
