@@ -85,6 +85,7 @@ namespace Auth.MicroService.WebApi
                     var loggerFactory = services.GetRequiredService<ILoggerFactory>();
                     var logger = loggerFactory.CreateLogger("Program");
                     logger.LogError(ex, "An error occurred while migrating the database.");
+                    Log.Error(ex, "An error occurred while migrating the database.");
                 }
             }
 
