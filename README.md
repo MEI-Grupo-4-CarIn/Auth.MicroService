@@ -1,11 +1,11 @@
 # Auth.MicroService
 
-This repository contains the source code for the Auth.MicroService, a microservice for handling user authentication in a .NET application.
-
 [![Docker Hub](https://img.shields.io/badge/Docker%20Hub-Auth.MicroService-blue)](https://hub.docker.com/r/duartefernandes/auth-microservice)
 [![Docker Image Version (latest by date)](https://img.shields.io/docker/v/duartefernandes/auth-microservice?label=version)](https://hub.docker.com/r/duartefernandes/auth-microservice)
 [![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/duartefernandes/auth-microservice?label=size)](https://hub.docker.com/r/duartefernandes/auth-microservice)
 [![Docker Pulls](https://img.shields.io/docker/pulls/duartefernandes/auth-microservice)](https://hub.docker.com/r/duartefernandes/auth-microservice)
+
+This repository contains the source code for the Auth.MicroService, a microservice for handling user authentication/authorization and user management in a .NET application, using a SQL Server database and Elasticsearch + Kibana for audit logs.
 
 ## Kubernetes Documentation
 
