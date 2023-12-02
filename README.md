@@ -2,6 +2,16 @@
 
 This repository contains the source code for the Auth.MicroService, a microservice for handling user authentication in a .NET application.
 
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-Auth.MicroService-blue)](https://hub.docker.com/r/duartefernandes/auth-microservice)
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/duartefernandes/auth-microservice?label=version)](https://hub.docker.com/r/duartefernandes/auth-microservice)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/duartefernandes/auth-microservice?label=size)](https://hub.docker.com/r/duartefernandes/auth-microservice)
+[![Docker Pulls](https://img.shields.io/docker/pulls/duartefernandes/auth-microservice)](https://hub.docker.com/r/duartefernandes/auth-microservice)
+
+## Kubernetes Documentation
+
+For detailed instructions on how to deploy the Auth.MicroService to a Kubernetes cluster, please refer to the [Kubernetes Documentation](KUBERNETES.md).
+
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
@@ -22,37 +32,17 @@ Before you can run this project, you need to have the following installed on you
 4. Build the solution.
 5. Run the `docker-compose.yml` file to start the services.
 
-## Running the Application
+## Running the Application (via Docker)
 
-To run the application, you need to have Docker and Docker Compose installed on your machine. You can then use the following command to start the services:
+To run the application via Docker, you need to have Docker and Docker Compose installed on your machine. You can then use the following command to start the services (on the repository root):
 
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
 
-This command will start the Auth.MicroService, SQL Server, Elasticsearch, and Kibana services. The Auth.MicroService will be accessible at `http://localhost:5000`.
+This command will start the Auth.MicroService, SQL Server, Elasticsearch, and Kibana services. The Auth.MicroService will be accessible at `http://localhost:5001`.
 
 ## Viewing Logs in Kibana
 
 You can view the logs in Kibana by navigating to `http://localhost:5601` in your web browser. From there, you can select the appropriate index pattern and use Kibana's Discover feature to view and analyze your logs.
-
-## Building the Docker Image
-
-You can build the Docker image for the Auth.MicroService by running the following command:
-
-```bash
-docker build -t duartefernandes/auth-microservice .
-```
-
-You can then push the Docker image to Docker Hub by running the following command:
-
-```bash
-docker push duartefernandes/auth-microservice
-```
-
-You can then pull the Docker image from Docker Hub by running the following command:
-
-```bash
-docker pull your-dockerhub-username/auth-microservice
-```
