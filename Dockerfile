@@ -8,7 +8,7 @@ COPY src/Auth.MicroService.WebApi/*.csproj ./src/Auth.MicroService.WebApi/
 COPY src/Auth.MicroService.Application/*.csproj ./src/Auth.MicroService.Application/
 COPY src/Auth.MicroService.Infrastructure/*.csproj ./src/Auth.MicroService.Infrastructure/
 COPY src/Auth.MicroService.Domain/*.csproj ./src/Auth.MicroService.Domain/
-RUN dotnet restore
+RUN dotnet restore --no-cache
 
 # Copy everything else and build
 COPY src/Auth.MicroService.WebApi/. ./src/Auth.MicroService.WebApi/
