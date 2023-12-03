@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   web_api:
-    build: . # build the Docker image 
+    image: duartefernandes/auth-microservice:latest # use the Docker image from Docker Hub
     container_name: auth_microservice
     ports:
       - "5001:80"

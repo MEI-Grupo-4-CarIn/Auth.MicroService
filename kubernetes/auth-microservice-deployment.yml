@@ -14,7 +14,7 @@ spec:
    spec:
      containers:
      - name: auth-microservice
-       image: duartefernandes/auth-microservice:3
+       image: duartefernandes/auth-microservice:latest
        imagePullPolicy: Always
        ports:
        - containerPort: 80
