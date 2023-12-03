@@ -1,10 +1,10 @@
 version: "3.9"
 services:
-  web_api:
+  auth-microservice:
     image: duartefernandes/auth-microservice:latest # use the Docker image from Docker Hub
     container_name: auth_microservice
     ports:
-      - "5001:80"
+      - "5001:8080"
     depends_on:
       - sql-server-docker
       - elasticsearch
