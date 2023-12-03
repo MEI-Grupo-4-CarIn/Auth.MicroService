@@ -1,5 +1,5 @@
-# Use the official Microsoft .NET 7 SDK image as the base image
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+# Use the official Microsoft .NET 8 SDK image as the base image
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 WORKDIR /app
 
 # Copy csproj and restore as distinct layers
@@ -21,7 +21,7 @@ WORKDIR /app/src/Auth.MicroService.WebApi
 RUN dotnet build -c Release -o out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build-env /app/src/Auth.MicroService.WebApi/out .
 COPY --from=build-env /app/src/Auth.MicroService.WebApi/appsettings.json ./
