@@ -25,4 +25,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build-env /app/src/Auth.MicroService.WebApi/out .
 COPY --from=build-env /app/src/Auth.MicroService.WebApi/appsettings.json ./
+ENV ASPNETCORE_ENVIRONMENT=Development
 ENTRYPOINT ["dotnet", "Auth.MicroService.WebApi.dll"]

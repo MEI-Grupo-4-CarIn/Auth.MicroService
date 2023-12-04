@@ -13,6 +13,20 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auth.MicroService.WebApi", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B4FB3B48-C14F-4C2E-9892-849693CFF765}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "kubernetes", "kubernetes", "{501BA8C2-060F-4A85-A849-A0CE1F2F52E4}"
+	ProjectSection(SolutionItems) = preProject
+		kubernetes\auth-microservice-deployment.yml = kubernetes\auth-microservice-deployment.yml
+		kubernetes\auth-microservice-service.yml = kubernetes\auth-microservice-service.yml
+		kubernetes\elasticsearch-config.yml = kubernetes\elasticsearch-config.yml
+		kubernetes\elasticsearch-deployment.yml = kubernetes\elasticsearch-deployment.yml
+		kubernetes\elasticsearch-service.yml = kubernetes\elasticsearch-service.yml
+		kubernetes\kibana-config.yml = kubernetes\kibana-config.yml
+		kubernetes\kibana-deployment.yml = kubernetes\kibana-deployment.yml
+		kubernetes\kibana-service.yml = kubernetes\kibana-service.yml
+		kubernetes\sql-server-deployment.yml = kubernetes\sql-server-deployment.yml
+		kubernetes\sql-server-service.yml = kubernetes\sql-server-service.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

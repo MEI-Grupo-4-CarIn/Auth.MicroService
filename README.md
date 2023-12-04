@@ -20,7 +20,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 Before you can run this project, you need to have the following installed on your machine:
 
-- .NET 7.0 or later
+- .NET 8.0 or later
 - Docker
 - Docker Compose
 
