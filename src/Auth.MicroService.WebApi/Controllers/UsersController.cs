@@ -77,6 +77,39 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
+        /// Allows every user to update their information.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Roles = "Admin, Manager, Driver")]
+        [HttpPatch("update-user-info")]
+        public async Task<ActionResult> UpdateUserInfo(PatchUpdateUserModel model, CancellationToken ct)
+        {
+            try
+            {
+                var updateUserMode = UserMapper.PatchUpdateUserModelToUpdateUserModel(model);
+
+                // Get the token to identify the user and then update it's own information
+                string token = GetTokenFromHeader();
+
+                string email = await _usersService.UpdateUserInfo(updateUserMode, token, ct);
+
+                Log.Information($"User with email '{email}' updated with success.");
+                return Ok($"User with email '{email}' updated with success.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while updating user information.");
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"Error while updating user information.",
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
         /// Delete user.
         /// </summary>
         /// <param name="id">The user id.</param>

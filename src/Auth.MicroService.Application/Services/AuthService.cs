@@ -37,7 +37,14 @@ namespace Auth.MicroService.Application.Services
                 throw new ArgumentNullException(nameof(model));
             }
 
+            var userByEmail = await _userRepository.GetUserByEmail(model.Email, ct);
+            if (userByEmail is not null)
+            {
+                throw new ArgumentException("Email already used.");
+            }
+
             var user = User.CreateNewUser(
+                userId: null,
                 model.FirstName,
                 model.LastName,
                 model.Email,

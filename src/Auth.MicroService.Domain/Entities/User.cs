@@ -41,7 +41,7 @@ namespace Auth.MicroService.Domain.Entities
             this.LastUpdateDateUtc = lastUpdateDateUtc;
         }
 
-        public static User Create(
+        private static User Create(
             int? userId,
             string firstName,
             string lastName,
@@ -96,6 +96,7 @@ namespace Auth.MicroService.Domain.Entities
         }
 
         public static User CreateNewUser(
+            int? userId,
             string firstName,
             string lastName,
             string email,
@@ -105,7 +106,7 @@ namespace Auth.MicroService.Domain.Entities
             bool status = false)
         {
             return User.Create(
-                null,
+                userId,
                 firstName,
                 lastName,
                 email,
@@ -172,12 +173,14 @@ namespace Auth.MicroService.Domain.Entities
 
         public User Update(
             string firstName,
-            string lastName,
+            string lastName,  
+            string email,        
             Role roleId,
             bool status)
         {
             this.FirstName = firstName;
             this.LastName = lastName;
+            this.Email = email;
             this.RoleId = roleId;
             this.Status = status;
 
