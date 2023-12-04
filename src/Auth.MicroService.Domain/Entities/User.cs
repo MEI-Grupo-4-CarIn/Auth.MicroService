@@ -147,9 +147,32 @@ namespace Auth.MicroService.Domain.Entities
                 user.LastUpdateDateUtc);
         }
 
+        public static User CreateUserForTests(
+            string firstName,
+            string lastName,
+            string email,
+            string password,
+            DateTime birthDate,
+            Role roleId = Role.Driver,
+            bool status = false)
+        {
+            return User.Create(
+                9999,
+                firstName,
+                lastName,
+                email,
+                password,
+                birthDate,
+                roleId,
+                status,
+                DateTime.Now,
+                DateTime.Now
+            );
+        }
+
         public User Update(
             string firstName,
-            string lastName,          
+            string lastName,
             Role roleId,
             bool status)
         {
@@ -170,4 +193,4 @@ namespace Auth.MicroService.Domain.Entities
             return regex.IsMatch(email);
         }
     }
- }
+}

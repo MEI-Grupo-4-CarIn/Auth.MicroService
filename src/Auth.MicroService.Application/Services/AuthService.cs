@@ -32,6 +32,11 @@ namespace Auth.MicroService.Application.Services
         /// <inheritdoc/>
         public async Task UserRegistration(RegisterModel model, CancellationToken ct)
         {
+            if (model is null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
             var user = User.CreateNewUser(
                 model.FirstName,
                 model.LastName,
@@ -47,6 +52,11 @@ namespace Auth.MicroService.Application.Services
         /// <inheritdoc/>
         public async Task<string> UserLogin(LoginModel model, CancellationToken ct)
         {
+            if (model is null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
             var user = await _userRepository.GetUserByEmail(model.Email, ct);
 
             if (user is null)
