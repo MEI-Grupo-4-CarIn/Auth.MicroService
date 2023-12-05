@@ -43,6 +43,7 @@ To run the application via Docker, you need to have Docker and Docker Compose in
 
     ```
     SMTP_PASSWORD=your_smtp_password
+    ```
 
 4. Save and close the `.env` file.
 
