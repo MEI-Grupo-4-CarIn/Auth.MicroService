@@ -4,6 +4,7 @@ using Auth.MicroService.Domain.Extensions;
 using Auth.MicroService.Domain.Repositories;
 using Auth.MicroService.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -58,7 +59,9 @@ namespace Auth.MicroService.Infrastructure.Repositories
                     UserFullName = $"{u.FirstName} {u.LastName}",
                     Email = u.Email,
                     Role = u.RoleId.GetDescription(),
-                    Status = u.Status
+                    Status = u.Status,
+                    CreationDate = u.CreationDateUtc.ToString("g"),
+                    LastUpdateDate = u.LastUpdateDateUtc.HasValue ? u.LastUpdateDateUtc.Value.ToString("g") : "No updates",
                 })
                 .ToListAsync(ct);
         }
@@ -96,7 +99,9 @@ namespace Auth.MicroService.Infrastructure.Repositories
                     UserFullName = $"{u.FirstName} {u.LastName}",
                     Email = u.Email,
                     Role = u.RoleId.GetDescription(),
-                    Status = u.Status
+                    Status = u.Status,
+                    CreationDate = u.CreationDateUtc.ToString("g"),
+                    LastUpdateDate = u.LastUpdateDateUtc.HasValue ? u.LastUpdateDateUtc.Value.ToString("g") : "No updates",
                 })
                 .ToListAsync(ct);
         }

@@ -2,10 +2,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 WORKDIR /app
 
-# Set an environment variable
-ARG SMTP_PASSWORD
-ENV SMTP_PASSWORD=$SMTP_PASSWORD
-
 # Copy csproj and restore as distinct layers
 COPY Auth.MicroService.sln .
 COPY src/Auth.MicroService.WebApi/*.csproj ./src/Auth.MicroService.WebApi/

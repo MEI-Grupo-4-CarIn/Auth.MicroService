@@ -185,6 +185,7 @@ namespace Auth.MicroService.Domain.Entities
             this.Password = password;
             this.RoleId = roleId;
             this.Status = status;
+            this.LastUpdateDateUtc = DateTime.Now;
 
             return this;
         }

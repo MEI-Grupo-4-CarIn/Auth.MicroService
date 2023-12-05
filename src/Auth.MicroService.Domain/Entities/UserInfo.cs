@@ -1,4 +1,6 @@
-﻿namespace Auth.MicroService.Domain.Entities
+﻿using System;
+
+namespace Auth.MicroService.Domain.Entities
 {
     public class UserInfo
     {
@@ -7,5 +9,7 @@
         public string Email { get; init; }
         public string Role { get; init; }
         public bool Status { get; init; }
+        public string CreationDate { get; init; }
+        public string LastUpdateDate { get; init; }
     }
 }
