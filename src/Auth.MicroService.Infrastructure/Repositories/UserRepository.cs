@@ -77,6 +77,7 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 user.FirstName,
                 user.LastName,
                 user.Email,
+                user.Password,
                 user.RoleId,
                 user.Status);
 

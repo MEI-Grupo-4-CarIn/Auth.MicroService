@@ -26,6 +26,22 @@ namespace Auth.MicroService.Application.Services.Interfaces
         Task<string> UserLogin(LoginModel model, CancellationToken ct);
 
         /// <summary>
+        /// Generates a password reset token.
+        /// </summary>
+        /// <param name="email">The user's email.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task<string> GeneratePasswordResetToken(string email, CancellationToken ct);
+
+        /// <summary>
+        /// Resets a user's password.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task<string> ResetPassword(ResetPasswordModel model, CancellationToken ct);
+
+        /// <summary>
         /// Validates one token.
         /// </summary>
         /// <param name="token">The token.</param>

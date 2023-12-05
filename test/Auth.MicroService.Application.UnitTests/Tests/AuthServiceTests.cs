@@ -5,6 +5,7 @@ using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Enums;
 using Auth.MicroService.Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -19,6 +20,7 @@ namespace Auth.MicroService.Application.UnitTests.Tests
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<IPasswordHasher<User>> _passwordHasherMock;
         private Mock<IJwtProvider> _jwtProviderMock;
+        private Mock<IMemoryCache> _cacheMock;
         private AuthService _authService;
 
         [TestInitialize]
@@ -27,7 +29,12 @@ namespace Auth.MicroService.Application.UnitTests.Tests
             _userRepositoryMock = new Mock<IUserRepository>();
             _passwordHasherMock = new Mock<IPasswordHasher<User>>();
             _jwtProviderMock = new Mock<IJwtProvider>();
-            _authService = new AuthService(_userRepositoryMock.Object, _passwordHasherMock.Object, _jwtProviderMock.Object);
+            _cacheMock = new Mock<IMemoryCache>();
+            _authService = new AuthService(
+                _userRepositoryMock.Object,
+                _passwordHasherMock.Object,
+                _jwtProviderMock.Object,
+                _cacheMock.Object);
         }
 
         [TestMethod]

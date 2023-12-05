@@ -102,8 +102,7 @@ namespace Auth.MicroService.Application.Services
                 }
             }
 
-            string email = await _userRepository.UpdateUser(updatedUser, ct);
-            return email;
+            return await _userRepository.UpdateUser(updatedUser, ct);
         }
 
         public async Task DeleteUser(int id, string token, CancellationToken ct)

@@ -12,6 +12,8 @@ namespace Auth.MicroService.Application.JwtUtils
 {
     public sealed class JwtProvider : IJwtProvider
     {
+        private const string EmailClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+
         private readonly IConfiguration _configuration;
 
         public JwtProvider(IConfiguration configuration)
@@ -28,49 +30,28 @@ namespace Auth.MicroService.Application.JwtUtils
                new Claim(ClaimTypes.Role, user.RoleId.ToString())
             };
 
-            var signingCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(
-                   Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"])),
-                SecurityAlgorithms.HmacSha256);
+            return GenerateToken(claims);
+        }
 
-            var token = new JwtSecurityToken(
-                _configuration["JwtSettings:Issuer"],
-                _configuration["JwtSettings:Audience"],
-                claims,
-                null,
-                DateTime.UtcNow.AddHours(1),
-                signingCredentials);
+        public string GeneratePasswordResetToken(User user)
+        {
+            var claims = new Claim[]
+            {
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("exp", DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds().ToString())
+            };
 
-            string tokenValue = new JwtSecurityTokenHandler()
-                .WriteToken(token);
-
-            return tokenValue;
+            return GenerateToken(claims);
         }
 
         public bool ValidateToken(string token)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var validationParameters = new TokenValidationParameters()
-            {
-                ValidateLifetime = true,
-                ValidateAudience = true,
-                ValidateIssuer = true,
-                ValidIssuer = _configuration["JwtSettings:Issuer"],
-                ValidAudience = _configuration["JwtSettings:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]))
-            };
+            return ValidateTokenByClaim(token, "id") is not null;
+        }
 
-            try
-            {
-                tokenHandler.ValidateToken(token, validationParameters, out _);
-            }
-            catch
-            {
-                return false;
-            }
-
-            return true;
+        public string ValidatePasswordResetToken(string token)
+        {
+            return ValidateTokenByClaim(token, EmailClaimType);
         }
 
         public int? GetUserIdFromToken(string token)
@@ -104,6 +85,49 @@ namespace Auth.MicroService.Application.JwtUtils
                 return role;
             }
             else
+            {
+                return null;
+            }
+        }
+
+        private string GenerateToken(Claim[] claims)
+        {
+            var signingCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(
+                   Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"])),
+                SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                _configuration["JwtSettings:Issuer"],
+                _configuration["JwtSettings:Audience"],
+                claims,
+                null,
+                DateTime.UtcNow.AddHours(1),
+                signingCredentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        private string ValidateTokenByClaim(string token, string claimType)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters()
+            {
+                ValidateLifetime = true,
+                ValidateAudience = true,
+                ValidateIssuer = true,
+                ValidIssuer = _configuration["JwtSettings:Issuer"],
+                ValidAudience = _configuration["JwtSettings:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]))
+            };
+
+            try
+            {
+                var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out _);
+                return claimsPrincipal.FindFirst(claimType)?.Value;
+            }
+            catch
             {
                 return null;
             }

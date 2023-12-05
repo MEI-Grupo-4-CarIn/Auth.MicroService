@@ -61,6 +61,7 @@ namespace Auth.MicroService.WebApi
                     };
                 });
 
+            builder.Services.AddMemoryCache();
             builder.Services.AddAuthorization();
 
             builder.Services.AddControllers();
@@ -69,10 +70,11 @@ namespace Auth.MicroService.WebApi
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IUsersService, UsersService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             builder.Services.AddSingleton<IJwtProvider, JwtProvider>();
-
+            
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
