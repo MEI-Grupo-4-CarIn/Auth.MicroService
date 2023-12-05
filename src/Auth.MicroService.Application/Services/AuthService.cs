@@ -96,6 +96,11 @@ namespace Auth.MicroService.Application.Services
         /// <inheritdoc/>
         public async Task<string> GeneratePasswordResetToken(string email, CancellationToken ct)
         {
+            if (email is null)
+            {
+                throw new ArgumentNullException(nameof(email));
+            }
+
             var user = await _userRepository.GetUserByEmail(email, ct);
             if (user is null)
             {
@@ -108,6 +113,11 @@ namespace Auth.MicroService.Application.Services
 
         public async Task<string> ResetPassword(ResetPasswordModel model, CancellationToken ct)
         {
+            if (model is null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+            
             var email = _jwtProvider.ValidatePasswordResetToken(model.Token);
             if (email is null)
             {

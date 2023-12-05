@@ -119,6 +119,62 @@ namespace Auth.MicroService.Application.UnitTests.Tests
         }
 
         [TestMethod]
+        public async Task GeneratePasswordResetToken_ShouldReturnToken_WhenEmailIsValid()
+        {
+            // Arrange
+            var email = "test@email.com";
+
+            var user = User.CreateUserForTests(
+                "Test", 
+                "Test", 
+                email, 
+                "abcd123456", 
+                new DateTime(1990, 1, 1)
+            );
+
+            _userRepositoryMock.Setup(x => x.GetUserByEmail(email, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+            _jwtProviderMock.Setup(x => x.GeneratePasswordResetToken(user)).Returns("validToken");
+
+            // Act
+            var result = await _authService.GeneratePasswordResetToken(email, CancellationToken.None);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("validToken", result);
+        }
+
+        [TestMethod]
+        public async Task ResetPassword_ShouldResetPassword_WhenTokenAndNewPasswordAreValid()
+        {
+            // Arrange
+            var model = new ResetPasswordModel
+            {
+                Token = "validToken",
+                NewPassword = "abcd123456"
+            };
+            var email = "test@email.com";
+
+            var user = User.CreateUserForTests(
+                "Test", 
+                "Test", 
+                email, 
+                "abcd123456",
+                new DateTime(1990, 1, 1)
+            );
+
+            _jwtProviderMock.Setup(x => x.ValidatePasswordResetToken(model.Token)).Returns(email);
+            _userRepositoryMock.Setup(x => x.GetUserByEmail(email, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+            _userRepositoryMock.Setup(x => x.UpdateUser(It.IsAny<User>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(email));
+
+            // Act
+            await _authService.ResetPassword(model, CancellationToken.None);
+
+            // Assert
+            _jwtProviderMock.Verify(x => x.ValidatePasswordResetToken(model.Token), Times.Once);
+            _userRepositoryMock.Verify(x => x.UpdateUser(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [TestMethod]
         public void ValidateToken_ShouldReturnTrue_WhenTokenIsValid()
         {
             // Arrange
