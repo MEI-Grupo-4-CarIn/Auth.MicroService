@@ -17,7 +17,7 @@ spec:
         image: duartefernandes/auth-microservice:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         env:
         - name: SMTP_PASSWORD
           valueFrom:
