@@ -26,8 +26,9 @@ COPY src/Auth.MicroService.WebApi/appsettings.json ./src/Auth.MicroService.WebAp
 WORKDIR /app/src/Auth.MicroService.WebApi
 RUN dotnet build -c Release -o out
 
-# Run the unit tests
+# Build and run the unit tests
 WORKDIR /app/test/Auth.MicroService.Application.UnitTests
+RUN dotnet build -c Release -o out
 RUN dotnet test --no-build --verbosity normal
 
 # Build runtime image
