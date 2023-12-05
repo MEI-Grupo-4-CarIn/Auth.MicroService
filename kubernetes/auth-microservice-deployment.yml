@@ -1,25 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
- name: auth-microservice
+  name: auth-microservice
 spec:
- replicas: 3
- selector:
-   matchLabels:
-     app: auth-microservice
- template:
-   metadata:
-     labels:
-       app: auth-microservice
-   spec:
-     containers:
-     - name: auth-microservice
-       image: duartefernandes/auth-microservice:latest
-       imagePullPolicy: Always
-       ports:
-       - containerPort: 80
-       env:
-       - name: ConnectionStrings__DefaultConnection
-         value: "Server=sql-server,1433;Database=Auth.MicroService.Database;User Id=sa;Password=A&VeryComplex123Password;TrustServerCertificate=True"
-       - name: Elasticsearch__Url
-         value: "http://elasticsearch:9200"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: auth-microservice
+  template:
+    metadata:
+      labels:
+        app: auth-microservice
+    spec:
+      containers:
+      - name: auth-microservice
+        image: duartefernandes/auth-microservice:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        env:
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: smtp-password
+              key: SMTP_PASSWORD
+        - name: ConnectionStrings__DefaultConnection
+          value: "Server=sql-server,1433;Database=Auth.MicroService.Database;User Id=sa;Password=A&VeryComplex123Password;TrustServerCertificate=True"
+        - name: Elasticsearch__Url
+          value: "http://elasticsearch:9200"

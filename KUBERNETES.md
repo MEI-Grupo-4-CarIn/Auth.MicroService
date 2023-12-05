@@ -14,7 +14,13 @@ Before you can deploy this project to a Kubernetes cluster, you need to have the
 1. Clone the repository to your local machine.
 2. If you're using Minikube, start your local cluster by running the command `minikube start`.
 3. Navigate to the Kubernetes directory in the repository.
-4. Run the following commands (**in this order**) to deploy the Auth.MicroService and its dependencies to your Kubernetes cluster:
+4. Create a Secret for the SMTP password:
+  ```bash
+  kubectl create secret generic smtp-password --from-literal=SMTP_PASSWORD=your_smtp_password
+  ```
+  Replace `your_smtp_password` with the actual SMTP password.
+
+5. Run the following commands (**in this order**) to deploy the Auth.MicroService and its dependencies to your Kubernetes cluster:
   ```bash
   kubectl apply -f elasticsearch-config.yml
   kubectl apply -f elasticsearch-deployment.yml

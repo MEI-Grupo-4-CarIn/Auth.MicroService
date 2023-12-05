@@ -1,8 +1,7 @@
 version: "3.9"
 services:
   auth-microservice:
-    # build: . # build the image locally if wanted
-    image: duartefernandes/auth-microservice:latest # use the Docker image from Docker Hub
+    image: duartefernandes/auth-microservice:latest
     container_name: auth_microservice
     ports:
       - "5001:8080"
@@ -10,8 +9,9 @@ services:
       - sql-server-docker
       - elasticsearch
     environment:
-      - ConnectionStrings__DefaultConnection=Server=sql-server-docker;Database=Auth.MicroService.Database;User Id=sa;Password=A&VeryComplex123Password;TrustServerCertificate=True
-      - Elasticsearch__Url=http://elasticsearch:9200
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      ConnectionStrings__DefaultConnection: Server=sql-server-docker;Database=Auth.MicroService.Database;User Id=sa;Password=A&VeryComplex123Password;TrustServerCertificate=True
+      Elasticsearch__Url: http://elasticsearch:9200
   sql-server-docker:
     image: "mcr.microsoft.com/mssql/server:2022-latest"
     container_name: sql-server-docker

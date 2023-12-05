@@ -37,10 +37,10 @@ Before you can run this project, you need to have the following installed on you
 To run the application via Docker, you need to have Docker and Docker Compose installed on your machine. You can then use the following command to start the services (on the repository root):
 
 ```bash
-docker-compose up -d
+export SMTP_PASSWORD=your_smtp_password docker-compose up -d
 ```
 
-
+Replace `your_smtp_password` with the actual SMTP password.
 This command will start the Auth.MicroService, SQL Server, Elasticsearch, and Kibana services. The Auth.MicroService will be accessible at `http://localhost:5001`.
 
 ## Viewing Logs in Kibana

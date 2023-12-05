@@ -20,7 +20,7 @@ jobs:
       - name: Build the Docker image
         run: |
           TAG=${GITHUB_REF#refs/tags/}
-          docker build . --file Dockerfile --tag ${{ secrets.DOCKER_HUB_USERNAME }}/auth-microservice:${TAG} --tag ${{ secrets.DOCKER_HUB_USERNAME }}/auth-microservice:latest --build-arg SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }}
+          docker build . --file Dockerfile --tag ${{ secrets.DOCKER_HUB_USERNAME }}/auth-microservice:${TAG} --tag ${{ secrets.DOCKER_HUB_USERNAME }}/auth-microservice:latest
 
       - name: Push the Docker image
         run: |
