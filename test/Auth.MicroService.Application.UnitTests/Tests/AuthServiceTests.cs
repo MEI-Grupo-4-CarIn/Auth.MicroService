@@ -5,6 +5,7 @@ using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Enums;
 using Auth.MicroService.Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -19,6 +20,7 @@ namespace Auth.MicroService.Application.UnitTests.Tests
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<IPasswordHasher<User>> _passwordHasherMock;
         private Mock<IJwtProvider> _jwtProviderMock;
+        private Mock<IMemoryCache> _cacheMock;
         private AuthService _authService;
 
         [TestInitialize]
@@ -27,7 +29,12 @@ namespace Auth.MicroService.Application.UnitTests.Tests
             _userRepositoryMock = new Mock<IUserRepository>();
             _passwordHasherMock = new Mock<IPasswordHasher<User>>();
             _jwtProviderMock = new Mock<IJwtProvider>();
-            _authService = new AuthService(_userRepositoryMock.Object, _passwordHasherMock.Object, _jwtProviderMock.Object);
+            _cacheMock = new Mock<IMemoryCache>();
+            _authService = new AuthService(
+                _userRepositoryMock.Object,
+                _passwordHasherMock.Object,
+                _jwtProviderMock.Object,
+                _cacheMock.Object);
         }
 
         [TestMethod]
@@ -109,6 +116,62 @@ namespace Auth.MicroService.Application.UnitTests.Tests
 
             // Assert
             Assert.AreEqual("token", result);
+        }
+
+        [TestMethod]
+        public async Task GeneratePasswordResetToken_ShouldReturnToken_WhenEmailIsValid()
+        {
+            // Arrange
+            var email = "test@email.com";
+
+            var user = User.CreateUserForTests(
+                "Test", 
+                "Test", 
+                email, 
+                "abcd123456", 
+                new DateTime(1990, 1, 1)
+            );
+
+            _userRepositoryMock.Setup(x => x.GetUserByEmail(email, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+            _jwtProviderMock.Setup(x => x.GeneratePasswordResetToken(user)).Returns("validToken");
+
+            // Act
+            var result = await _authService.GeneratePasswordResetToken(email, CancellationToken.None);
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.AreEqual("validToken", result);
+        }
+
+        [TestMethod]
+        public async Task ResetPassword_ShouldResetPassword_WhenTokenAndNewPasswordAreValid()
+        {
+            // Arrange
+            var model = new ResetPasswordModel
+            {
+                Token = "validToken",
+                NewPassword = "abcd123456"
+            };
+            var email = "test@email.com";
+
+            var user = User.CreateUserForTests(
+                "Test", 
+                "Test", 
+                email, 
+                "abcd123456",
+                new DateTime(1990, 1, 1)
+            );
+
+            _jwtProviderMock.Setup(x => x.ValidatePasswordResetToken(model.Token)).Returns(email);
+            _userRepositoryMock.Setup(x => x.GetUserByEmail(email, It.IsAny<CancellationToken>())).ReturnsAsync(user);
+            _userRepositoryMock.Setup(x => x.UpdateUser(It.IsAny<User>(), It.IsAny<CancellationToken>())).Returns(Task.FromResult(email));
+
+            // Act
+            await _authService.ResetPassword(model, CancellationToken.None);
+
+            // Assert
+            _jwtProviderMock.Verify(x => x.ValidatePasswordResetToken(model.Token), Times.Once);
+            _userRepositoryMock.Verify(x => x.UpdateUser(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]

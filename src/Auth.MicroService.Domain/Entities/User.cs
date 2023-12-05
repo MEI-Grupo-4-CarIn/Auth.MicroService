@@ -173,14 +173,16 @@ namespace Auth.MicroService.Domain.Entities
 
         public User Update(
             string firstName,
-            string lastName,  
-            string email,        
+            string lastName,
+            string email,
+            string password,
             Role roleId,
             bool status)
         {
             this.FirstName = firstName;
             this.LastName = lastName;
             this.Email = email;
+            this.Password = password;
             this.RoleId = roleId;
             this.Status = status;
 

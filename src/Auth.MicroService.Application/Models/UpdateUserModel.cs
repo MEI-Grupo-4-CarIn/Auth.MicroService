@@ -1,5 +1,3 @@
-using System;
-
 namespace Auth.MicroService.Application.Models
 {
     public class UpdateUserModel

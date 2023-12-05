@@ -9,6 +9,5 @@ namespace Auth.MicroService.WebApi.Models
 
         [JsonRequired]
         public string Password { get; init; }
-
     }
 }
