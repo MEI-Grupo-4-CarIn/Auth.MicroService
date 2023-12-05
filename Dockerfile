@@ -29,6 +29,7 @@ RUN dotnet build -c Release -o out
 # Build and run the unit tests
 WORKDIR /app/test/Auth.MicroService.Application.UnitTests
 RUN dotnet build -c Release -o out
+WORKDIR /app/test/Auth.MicroService.Application.UnitTests/out
 RUN dotnet test --no-build --verbosity normal
 
 # Build runtime image
