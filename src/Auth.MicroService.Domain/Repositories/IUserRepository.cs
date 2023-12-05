@@ -15,7 +15,7 @@ namespace Auth.MicroService.Domain.Repositories
 
         Task<IEnumerable<UserInfo>> GetAllInactiveUsers(CancellationToken ct);
 
-        Task UpdateUser(User user, CancellationToken ct);
+        Task<string> UpdateUser(User user, CancellationToken ct);
 
         Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct);
     }

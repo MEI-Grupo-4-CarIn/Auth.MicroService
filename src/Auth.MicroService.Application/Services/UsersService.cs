@@ -6,7 +6,7 @@ using Auth.MicroService.Domain.Enums;
 using Auth.MicroService.Domain.Repositories;
 using System;
 using System.Collections.Generic;
-using System.Net;
+using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,7 +51,7 @@ namespace Auth.MicroService.Application.Services
             var userRole = _jwtProvider.GetUserRoleFromToken(token);
             if (userRole is null)
             {
-                throw new UnauthorizedAccessException();
+                throw new UnauthorizedAccessException("Invalid token.");
             }
 
             if (model.Role.HasValue)
@@ -68,10 +68,47 @@ namespace Auth.MicroService.Application.Services
             await _userRepository.UpdateUser(updatedUser, ct);
         }
 
+        public async Task<string> UpdateUserInfo(UpdateUserModel model, string token, CancellationToken ct)
+        {
+            var userId = _jwtProvider.GetUserIdFromToken(token);
+            if (userId is null)
+            {
+                throw new UnauthorizedAccessException("Invalid token.");
+            }
+
+            var user = await _userRepository.GetUserById(userId.Value, ct);
+            if (user is null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            var updatedUser = User.CreateNewUser(
+                user.UserId,
+                model.FirstName ?? user.FirstName,
+                model.LastName ?? user.LastName,
+                model.Email ?? user.Email,
+                user.Password,
+                user.BirthDate,
+                user.RoleId,
+                user.Status
+            );
+
+            if (model.Email is not null && !string.Equals(model.Email, user.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                var userByEmail = await _userRepository.GetUserByEmail(model.Email, ct);
+                if (userByEmail is not null)
+                {
+                    throw new ArgumentException("Email already used.");
+                }
+            }
+
+            string email = await _userRepository.UpdateUser(updatedUser, ct);
+            return email;
+        }
+
         public async Task DeleteUser(int id, string token, CancellationToken ct)
         {
             var user = await _userRepository.GetUserById(id, ct);
-
             if(user is null)
             {
                 throw new Exception("User not found.");
