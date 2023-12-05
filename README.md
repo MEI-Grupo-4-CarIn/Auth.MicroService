@@ -34,10 +34,22 @@ Before you can run this project, you need to have the following installed on you
 
 ## Running the Application (via Docker)
 
-To run the application via Docker, you need to have Docker and Docker Compose installed on your machine. You can then use the following command to start the services (on the repository root):
+
+To run the application via Docker, you need to have Docker and Docker Compose installed on your machine. 
+
+1. Create a file named `.env` in the same directory as your `docker-compose.yml` file.
+2. Open the `.env` file in a text editor.
+3. Add the following line to the file, replacing `your_smtp_password` with your actual SMTP password:
+
+    ```
+    SMTP_PASSWORD=your_smtp_password
+
+4. Save and close the `.env` file.
+
+You can then use the following command to start the services (on the repository root):
 
 ```bash
-export SMTP_PASSWORD=your_smtp_password docker-compose up -d
+docker-compose up -d
 ```
 
 Replace `your_smtp_password` with the actual SMTP password.
