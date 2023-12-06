@@ -6,8 +6,8 @@ namespace Auth.MicroService.WebApi.Models
     public class PostApproveUserModel
     {
         [JsonRequired]
-        public int Id { get; set; }
+        public int Id { get; init; }
 
-        public Role? Role { get; set; }
+        public Role? Role { get; init; }
     }
 }

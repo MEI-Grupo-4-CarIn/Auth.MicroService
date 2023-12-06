@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,13 +37,13 @@ namespace Auth.MicroService.WebApi.Controllers
         /// </summary>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Manager")]
         [HttpGet("waiting-for-approval-list")]
         public async Task<ActionResult> GetUsersForApproval(CancellationToken ct)
         {
             var usersList = await _usersService.GetAllUsersForApproval(ct);
 
-            return Ok(usersList);
+            return Ok(usersList.Any() ? usersList : "No users waiting for approval.");
         }
 
         /// <summary>
@@ -88,12 +89,12 @@ namespace Auth.MicroService.WebApi.Controllers
         {
             try
             {
-                var updateUserMode = UserMapper.PatchUpdateUserModelToUpdateUserModel(model);
+                var updateUserModel = UserMapper.PatchUpdateUserModelToUpdateUserModel(model);
 
                 // Get the token to identify the user and then update it's own information
                 string token = GetTokenFromHeader();
 
-                string email = await _usersService.UpdateUserInfo(updateUserMode, token, ct);
+                string email = await _usersService.UpdateUserInfo(updateUserModel, token, ct);
 
                 Log.Information($"User with email '{email}' updated with success.");
                 return Ok($"User with email '{email}' updated with success.");
@@ -104,6 +105,39 @@ namespace Auth.MicroService.WebApi.Controllers
                 return BadRequest(new ErrorResponseModel
                 {
                     Error = $"Error while updating user information.",
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Allows every authenticated user to change their password.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Roles = "Admin, Manager, Driver")]
+        [HttpPost("change-password")]
+        public async Task<ActionResult> ChangePassword(PostChangePasswordModel model, CancellationToken ct)
+        {
+            try
+            {
+                var changePasswordModel = UserMapper.PostChangePasswordModelToChangePasswordModel(model);
+
+                // Get the token to identify the user and then update it's own information
+                string token = GetTokenFromHeader();
+
+                string email = await _usersService.ChangeUserPassword(changePasswordModel, token, ct);
+
+                Log.Information($"Password from user '{email}' updated with success.");
+                return Ok($"Password from user '{email}' updated with success.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while updating user password.");
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"Error while updating user password.",
                     Message = ex.Message
                 });
             }
@@ -147,7 +181,7 @@ namespace Auth.MicroService.WebApi.Controllers
         public async Task<ActionResult<IEnumerable<UserInfo>>> GetAllUsers(CancellationToken ct)
         {
             var usersList = await _usersService.GetAllUsers(ct);
-            return Ok(usersList);
+            return Ok(usersList.Any() ? usersList : "No users to show.");
         }
 
         private string GetTokenFromHeader()

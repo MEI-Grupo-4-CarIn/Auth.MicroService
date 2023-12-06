@@ -4,6 +4,7 @@ using Auth.MicroService.Application.Services.Interfaces;
 using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Enums;
 using Auth.MicroService.Domain.Repositories;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,13 +18,16 @@ namespace Auth.MicroService.Application.Services
     /// </summary>
     public class UsersService : IUsersService
     {
+        private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IUserRepository _userRepository;
         private readonly IJwtProvider _jwtProvider;
 
         public UsersService(
+            IPasswordHasher<User> passwordHasher,
             IUserRepository userRepository,
             IJwtProvider jwtProvider)
         {
+            _passwordHasher = passwordHasher;
             _userRepository = userRepository;
             _jwtProvider = jwtProvider;
         }
@@ -103,6 +107,48 @@ namespace Auth.MicroService.Application.Services
             }
 
             return await _userRepository.UpdateUser(updatedUser, ct);
+        }
+
+        public async Task<string> ChangeUserPassword(ChangePasswordModel model, string token, CancellationToken ct)
+        {
+            var userId = _jwtProvider.GetUserIdFromToken(token);
+            if (userId is null)
+            {
+                throw new UnauthorizedAccessException("Invalid token.");
+            }
+
+            var user = await _userRepository.GetUserById(userId.Value, ct);
+            if (user is null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            // Verify the old password
+            var passwordResult = _passwordHasher.VerifyHashedPassword(user, user.Password, model.OldPassword);
+            if (passwordResult != PasswordVerificationResult.Success)
+            {
+                throw new UnauthorizedAccessException("Invalid old password.");
+            }
+
+            if (!string.Equals(model.NewPassword, model.ConfirmNewPassword))
+            {
+                throw new ArgumentException("NewPassword and ConfirmNewPassword are not equals.");
+            }
+
+            var userForValidation = User.CreateNewUser(
+                user.UserId,
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                model.NewPassword, // the new password
+                user.BirthDate,
+                user.RoleId,
+                user.Status
+            );
+
+            var userToUpdate = User.SetUserHashedPassword(user, _passwordHasher.HashPassword(userForValidation, userForValidation.Password));
+
+            return await _userRepository.UpdateUser(userToUpdate, ct);
         }
 
         public async Task DeleteUser(int id, string token, CancellationToken ct)

@@ -5,9 +5,9 @@ namespace Auth.MicroService.WebApi.Models
     public class PostResetPasswordModel
     {
         [JsonRequired]
-        public string Token { get; set; }
+        public string Token { get; init; }
 
         [JsonRequired]
-        public string NewPassword { get; set; }
+        public string NewPassword { get; init; }
     }
 }

@@ -38,7 +38,7 @@ namespace Auth.MicroService.Application.JwtUtils
             var claims = new Claim[]
             {
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim("exp", DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds().ToString())
+                new Claim("isPasswordReset", "true")
             };
 
             return GenerateToken(claims);
@@ -51,7 +51,10 @@ namespace Auth.MicroService.Application.JwtUtils
 
         public string ValidatePasswordResetToken(string token)
         {
-            return ValidateTokenByClaim(token, EmailClaimType);
+            return ValidateTokenByClaim(
+                token,
+                EmailClaimType,
+                isPasswordReset: true);
         }
 
         public int? GetUserIdFromToken(string token)
@@ -108,7 +111,10 @@ namespace Auth.MicroService.Application.JwtUtils
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private string ValidateTokenByClaim(string token, string claimType)
+        private string ValidateTokenByClaim(
+            string token,
+            string claimType,
+            bool isPasswordReset = false)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var validationParameters = new TokenValidationParameters()
@@ -125,7 +131,18 @@ namespace Auth.MicroService.Application.JwtUtils
             try
             {
                 var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out _);
-                return claimsPrincipal.FindFirst(claimType)?.Value;
+
+                if (isPasswordReset)
+                {
+                    var passwordResetClaim = claimsPrincipal.FindFirstValue("isPasswordReset");
+
+                    if (passwordResetClaim is null)
+                    {
+                        throw new ArgumentException("Invalid token.");
+                    }
+                }
+
+                return claimsPrincipal.FindFirstValue(claimType);
             }
             catch
             {

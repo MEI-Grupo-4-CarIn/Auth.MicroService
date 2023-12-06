@@ -59,7 +59,7 @@ namespace Auth.MicroService.WebApi.Controllers
 
             Log.Information("User '{Email}' has registered successfully.", registerModel.Email);
 
-            return Ok();
+            return Ok($"User '{registerModel.Email}' has registered successfully.");
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace Auth.MicroService.WebApi.Controllers
 
             Log.Information("Password reset token generated and email sent to '{Email}'.", model.Email);
 
-            return Ok();
+            return Ok($"Password reset token generated and email sent to '{model.Email}'.");
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace Auth.MicroService.WebApi.Controllers
 
             if (newToken is not null)
             {
-                return Ok(newToken);
+                return Ok(new { Token = newToken });
             }
             else
             {

@@ -9,7 +9,7 @@ This repository contains the source code for the Auth.MicroService, a microservi
 
 ## Kubernetes Documentation
 
-For detailed instructions on how to deploy the Auth.MicroService to a Kubernetes cluster, please refer to the [Kubernetes Documentation](KUBERNETES.md).
+For detailed instructions on how to deploy the Auth.MicroService to a Kubernetes cluster, please refer to the [Kubernetes Documentation](/kubernetes/README.md).
 
 
 ## Getting Started
