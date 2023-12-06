@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4940fdf3-edf9-4491-ada7-81d3d31b4965",
+		"_postman_id": "d9843b60-37e3-4fe1-983b-19a900c993da",
 		"name": "Auth.MicroService",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "13807037"
@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Rafael\",\r\n    \"lastName\": \"Azevedo\",\r\n    \"email\": \"rafael123@email.com\",\r\n    \"password\": \"12345678\",\r\n    \"birthDate\": \"1977-11-10\"\r\n}",
+							"raw": "{\r\n    \"firstName\": \"Duarte\",\r\n    \"lastName\": \"Fernandes\",\r\n    \"email\": \"a14858@alunos.ipca.pt\",\r\n    \"password\": \"12345678\",\r\n    \"birthDate\": \"1977-11-10\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -43,7 +43,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"rafael123@email.com\",\r\n    \"password\": \"12345678\"\r\n}",
+							"raw": "{\r\n    \"email\": \"a14858@alunos.ipca.pt\",\r\n    \"password\": \"12345678\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -64,12 +64,66 @@
 					"response": []
 				},
 				{
+					"name": "ForgotPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"a14858@alunos.ipca.pt\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{auth-microservice-url}}api/auth/forgotPassword",
+							"host": [
+								"{{auth-microservice-url}}api"
+							],
+							"path": [
+								"auth",
+								"forgotPassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResetPassword",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImExNDg1OEBhbHVub3MuaXBjYS5wdCIsImlzUGFzc3dvcmRSZXNldCI6InRydWUiLCJleHAiOjE3MDE4NjM3MjcsImlzcyI6IkF1dGguTWljcm9TZXJ2aWNlIiwiYXVkIjoiQXV0aC5NaWNyb1NlcnZpY2UifQ.4rMo7TIk_uhDpm1E5UwuGAFmfgWju6Q1BMaOEcqnyNQ\",\r\n    \"newPassword\": \"12345678\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{auth-microservice-url}}api/auth/resetPassword",
+							"host": [
+								"{{auth-microservice-url}}api"
+							],
+							"path": [
+								"auth",
+								"resetPassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "ValidateToken",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{auth-microservice-url}}api/auth/validateToken?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTcwMTYzNDM1OSwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9._x1je-Tcpmr8nqFwAwA8NPFPtmk8Fb4H2MX0PNy8dJ0",
+							"raw": "{{auth-microservice-url}}api/auth/validateToken?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImExNDg1OEBhbHVub3MuaXBjYS5wdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxNzk3MjI3LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.YeXddEJske3QCqk256DZDQL1poGNkgvcLYBWvzLWc6M",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
@@ -80,7 +134,7 @@
 							"query": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTcwMTYzNDM1OSwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9._x1je-Tcpmr8nqFwAwA8NPFPtmk8Fb4H2MX0PNy8dJ0"
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImExNDg1OEBhbHVub3MuaXBjYS5wdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxNzk3MjI3LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.YeXddEJske3QCqk256DZDQL1poGNkgvcLYBWvzLWc6M"
 								}
 							]
 						}
@@ -124,7 +178,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJNYW5hZ2VyIiwiZXhwIjoxNzAxNjk0NTEzLCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.h3CFDp_piib-1Ve-b8rV8MS7AdugGBhlmbdFq4WE138",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImVtYWlsQGVtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxNzgyMDM5LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.2V7qAwg4lJdbrSsb_m3Wd0SLVH5uRmGy4NcEzRWOfNc",
 									"type": "string"
 								}
 							]
@@ -152,7 +206,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJNYW5hZ2VyIiwiZXhwIjoxNzAxNjk0NTEzLCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.h3CFDp_piib-1Ve-b8rV8MS7AdugGBhlmbdFq4WE138",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImVtYWlsQGVtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxODYzODE0LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.26hQR84RWZqwndg9nJ6bzBEHQScbbj3Lf6tFyJXYHI0",
 									"type": "string"
 								}
 							]
@@ -161,7 +215,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": 3,\r\n    \"role\": 3\r\n}",
+							"raw": "{\r\n    \"id\": 5,\r\n    \"role\": 1 // optional\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -189,7 +243,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJNYW5hZ2VyIiwiZXhwIjoxNzAxNjk0NTEzLCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.h3CFDp_piib-1Ve-b8rV8MS7AdugGBhlmbdFq4WE138",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJlbWFpbCI6ImExNDg1OEBhbHVkZGRub3MuaXBjYS5wdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxNzk3Mzg0LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.3WAX8q-H3N-f9Kt17OnUI4j1XlKvp8SnT7AVlAyo8Is",
 									"type": "string"
 								}
 							]
@@ -198,7 +252,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Joaquim\", // optional\r\n    \"lastName\": \"Marques\", // optional\r\n    \"email\": \"email@email.com\" // optional\r\n}",
+							"raw": "{\r\n    \"firstName\": \"Joaquim\", // optional\r\n    \"lastName\": \"Marques\", // optional\r\n    \"email\": \"emailabcd@email.com\" // optional\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -220,6 +274,43 @@
 					"response": []
 				},
 				{
+					"name": "ChangePassword",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjUiLCJlbWFpbCI6ImExNDg1OEBhbHVub3MuaXBjYS5wdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxODY0NTIxLCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.GQLl0oSzLcuBinMyVzyb_TyoIiHXATKe9ghL0iZKeyc",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldPassword\": \"123456789\",\r\n    \"newPassword\": \"12345678\",\r\n    \"confirmNewPassword\": \"12345678\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{auth-microservice-url}}api/users/change-password",
+							"host": [
+								"{{auth-microservice-url}}api"
+							],
+							"path": [
+								"users",
+								"change-password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "DeleteUser",
 					"request": {
 						"auth": {
@@ -227,7 +318,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTcwMTYzNDM1OSwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9._x1je-Tcpmr8nqFwAwA8NPFPtmk8Fb4H2MX0PNy8dJ0",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJNYW5hZ2VyIiwiZXhwIjoxNzAxNjk0NTEzLCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.h3CFDp_piib-1Ve-b8rV8MS7AdugGBhlmbdFq4WE138",
 									"type": "string"
 								}
 							]

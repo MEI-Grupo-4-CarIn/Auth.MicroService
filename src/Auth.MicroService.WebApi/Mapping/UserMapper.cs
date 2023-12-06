@@ -12,5 +12,6 @@ namespace Auth.MicroService.WebApi.Mapping
         public static partial ApproveUserModel PostApproveUserModelToApproveUserModel(PostApproveUserModel model);
         public static partial UpdateUserModel PatchUpdateUserModelToUpdateUserModel(PatchUpdateUserModel model);
         public static partial ResetPasswordModel PostResetPasswordModelToResetPasswordModel(PostResetPasswordModel model);
+        public static partial ChangePasswordModel PostChangePasswordModelToChangePasswordModel(PostChangePasswordModel model);
     }
 }

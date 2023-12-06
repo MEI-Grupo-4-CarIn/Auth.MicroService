@@ -136,10 +136,12 @@ namespace Auth.MicroService.Application.Services
                 userByEmail.LastName,
                 userByEmail.Email,
                 model.NewPassword,
-                userByEmail.BirthDate);
+                userByEmail.BirthDate,
+                userByEmail.RoleId,
+                userByEmail.Status);
 
             // Reset the password
-            var userToUpdate = User.SetUserHashedPassword(user, _passwordHasher.HashPassword(user, model.NewPassword));
+            var userToUpdate = User.SetUserHashedPassword(user, _passwordHasher.HashPassword(user, user.Password));
             
             return await _userRepository.UpdateUser(userToUpdate, ct);
         }

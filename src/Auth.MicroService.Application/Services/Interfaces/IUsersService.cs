@@ -14,6 +14,8 @@ namespace Auth.MicroService.Application.Services.Interfaces
 
         Task<string> UpdateUserInfo(UpdateUserModel model, string token, CancellationToken ct);
 
+        Task<string> ChangeUserPassword(ChangePasswordModel model, string token, CancellationToken ct);
+
         Task DeleteUser(int id, string token, CancellationToken ct);
 
         Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct);

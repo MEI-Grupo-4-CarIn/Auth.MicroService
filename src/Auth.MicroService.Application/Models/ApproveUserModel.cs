@@ -4,8 +4,7 @@ namespace Auth.MicroService.Application.Models
 {
     public class ApproveUserModel
     {
-        public int Id { get; set; }
-
-        public Role? Role { get; set; }
+        public int Id { get; init; }
+        public Role? Role { get; init; }
     }
 }
