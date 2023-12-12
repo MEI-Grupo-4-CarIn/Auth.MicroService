@@ -19,6 +19,7 @@ using Serilog;
 using Serilog.Sinks.Elasticsearch;
 using System;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace Auth.MicroService.WebApi
 {
@@ -46,6 +47,9 @@ namespace Auth.MicroService.WebApi
                })
                .CreateLogger();
 
+            var rsa = new RSACryptoServiceProvider();
+            rsa.FromXmlString(config["JwtSettings:PublicKey"]);
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -57,7 +61,7 @@ namespace Auth.MicroService.WebApi
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = config["JwtSettings:Issuer"],
                         ValidAudience = config["JwtSettings:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"]))
+                        IssuerSigningKey = new RsaSecurityKey(rsa.ExportParameters(false))
                     };
                 });
 
