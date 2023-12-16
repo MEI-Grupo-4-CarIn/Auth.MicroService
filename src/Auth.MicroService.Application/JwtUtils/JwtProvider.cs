@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace Auth.MicroService.Application.JwtUtils
 {
@@ -95,10 +96,12 @@ namespace Auth.MicroService.Application.JwtUtils
 
         private string GenerateToken(Claim[] claims)
         {
+            var rsa = new RSACryptoServiceProvider();
+            rsa.FromXmlString(_configuration["JwtSettings:PrivateKey"]);
+
             var signingCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(
-                   Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"])),
-                SecurityAlgorithms.HmacSha256);
+                new RsaSecurityKey(rsa.ExportParameters(true)),
+                SecurityAlgorithms.RsaSha256);
 
             var token = new JwtSecurityToken(
                 _configuration["JwtSettings:Issuer"],
@@ -116,7 +119,9 @@ namespace Auth.MicroService.Application.JwtUtils
             string claimType,
             bool isPasswordReset = false)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
+            var rsa = new RSACryptoServiceProvider();
+            rsa.FromXmlString(_configuration["JwtSettings:PublicKey"]);
+
             var validationParameters = new TokenValidationParameters()
             {
                 ValidateLifetime = true,
@@ -124,9 +129,10 @@ namespace Auth.MicroService.Application.JwtUtils
                 ValidateIssuer = true,
                 ValidIssuer = _configuration["JwtSettings:Issuer"],
                 ValidAudience = _configuration["JwtSettings:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]))
+                IssuerSigningKey = new RsaSecurityKey(rsa.ExportParameters(false))
             };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
 
             try
             {

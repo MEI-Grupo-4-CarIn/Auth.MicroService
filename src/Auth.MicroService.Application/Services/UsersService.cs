@@ -7,7 +7,6 @@ using Auth.MicroService.Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -175,6 +174,17 @@ namespace Auth.MicroService.Application.Services
         public async Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct)
         {
             return await _userRepository.GetAllUsers(ct);
+        }
+
+        public async Task<UserInfo> GetUserById(int id, CancellationToken ct)
+        {
+            var user = await _userRepository.GetUserInfoById(id, ct);
+            if(user is null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            return user;
         }
 
         private void CheckUserHierarchy(Role userRole, Role roleToApply, bool isDelete = false)

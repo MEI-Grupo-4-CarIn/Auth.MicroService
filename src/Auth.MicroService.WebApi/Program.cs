@@ -15,13 +15,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
 using System;
 using System.IO;
 using System.Reflection;
-using System.Text;
+using System.Security.Cryptography;
 
 namespace Auth.MicroService.WebApi
 {
@@ -33,8 +32,10 @@ namespace Auth.MicroService.WebApi
 
             var config = builder.Configuration;
 
-            builder.Services.AddRateLimiter(options => {
-                options.AddFixedWindowLimiter("Fixed", opt => {
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.AddFixedWindowLimiter("Fixed", opt =>
+                {
                     opt.Window = TimeSpan.FromSeconds(5);
                     opt.PermitLimit = 3;
                 });
@@ -49,6 +50,9 @@ namespace Auth.MicroService.WebApi
                })
                .CreateLogger();
 
+            var rsa = new RSACryptoServiceProvider();
+            rsa.FromXmlString(config["JwtSettings:PublicKey"]);
+
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -60,7 +64,7 @@ namespace Auth.MicroService.WebApi
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = config["JwtSettings:Issuer"],
                         ValidAudience = config["JwtSettings:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JwtSettings:SecretKey"]))
+                        IssuerSigningKey = new RsaSecurityKey(rsa.ExportParameters(false))
                     };
                 });
 
@@ -77,10 +81,9 @@ namespace Auth.MicroService.WebApi
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             builder.Services.AddSingleton<IJwtProvider, JwtProvider>();
-            
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            //builder.Services.AddSwaggerGen();
 
             builder.Services.AddSwaggerGen(c =>
             {
