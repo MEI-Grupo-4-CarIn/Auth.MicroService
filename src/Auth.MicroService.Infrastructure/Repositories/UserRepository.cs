@@ -105,6 +105,29 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
+        public async Task<UserInfo> GetUserInfoById(int id, CancellationToken ct)
+        {
+            var user = await _authDbContext.Set<User>()
+                .AsNoTracking()
+                .SingleOrDefaultAsync(u => u.UserId == id, ct);
+            
+            if (user is null)
+            {
+                return null;
+            }
+
+            return new UserInfo
+            {
+                UserId = user.UserId.Value,
+                UserFullName = $"{user.FirstName} {user.LastName}",
+                Email = user.Email,
+                Role = user.RoleId.GetDescription(),
+                Status = user.Status,
+                CreationDate = user.CreationDateUtc.ToString("g"),
+                LastUpdateDate = user.LastUpdateDateUtc.HasValue ? user.LastUpdateDateUtc.Value.ToString("g") : "No updates",
+            };
+        }
+
         private async Task<bool> DatabaseHasActiveUsers(CancellationToken ct)
         {
             return await _authDbContext.Set<User>()

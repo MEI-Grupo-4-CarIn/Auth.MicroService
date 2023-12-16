@@ -184,6 +184,30 @@ namespace Auth.MicroService.WebApi.Controllers
             return Ok(usersList.Any() ? usersList : "No users to show.");
         }
 
+        /// <summary>
+        /// Get user by id.
+        /// </summary>
+        /// <param name="id">The user id.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [HttpGet("get-by-id")]
+        public async Task<ActionResult<UserInfo>> GetUserById(int id, CancellationToken ct)
+        {
+            try
+            {
+                var user = await _usersService.GetUserById(id, ct);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"An error occurred while getting the user with id '{id}'.",
+                    Message = ex.Message
+                });
+            }
+        }
+
         private string GetTokenFromHeader()
         {
             if (HttpContext.Request.Headers.TryGetValue("Authorization", out var authHeader))
