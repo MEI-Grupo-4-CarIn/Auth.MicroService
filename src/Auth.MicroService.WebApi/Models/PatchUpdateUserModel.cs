@@ -1,5 +1,3 @@
-using System;
-
 namespace Auth.MicroService.WebApi.Models
 {
     public class PatchUpdateUserModel

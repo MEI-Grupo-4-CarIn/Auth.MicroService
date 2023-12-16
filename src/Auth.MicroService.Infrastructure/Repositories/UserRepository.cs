@@ -4,7 +4,6 @@ using Auth.MicroService.Domain.Extensions;
 using Auth.MicroService.Domain.Repositories;
 using Auth.MicroService.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -69,9 +68,9 @@ namespace Auth.MicroService.Infrastructure.Repositories
         public async Task<string> UpdateUser(User user, CancellationToken ct)
         {
             var existingUser = await _authDbContext.Set<User>()
-                .SingleOrDefaultAsync(u => u.UserId == user.UserId);              
-               
-            if(existingUser is null)
+                .SingleOrDefaultAsync(u => u.UserId == user.UserId);
+
+            if (existingUser is null)
             {
                 return null;
             }
@@ -85,14 +84,14 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 user.Status);
 
             await _authDbContext.SaveChangesAsync(ct);
-            
+
             return existingUser.Email;
         }
 
         public async Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct)
-        {           
+        {
             return await _authDbContext.Set<User>()
-                .AsNoTracking()                
+                .AsNoTracking()
                 .Select(u => new UserInfo
                 {
                     UserId = u.UserId.Value,
@@ -106,7 +105,7 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 .ToListAsync(ct);
         }
 
-        private async Task<bool> DatabaseHasActiveUsers (CancellationToken ct)
+        private async Task<bool> DatabaseHasActiveUsers(CancellationToken ct)
         {
             return await _authDbContext.Set<User>()
                 .AnyAsync(u => u.Status == true, ct);
