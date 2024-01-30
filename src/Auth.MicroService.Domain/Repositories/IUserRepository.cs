@@ -18,5 +18,7 @@ namespace Auth.MicroService.Domain.Repositories
         Task<string> UpdateUser(User user, CancellationToken ct);
 
         Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct);
+
+        Task<UserInfo> GetUserInfoById(int id, CancellationToken ct);
     }
 }

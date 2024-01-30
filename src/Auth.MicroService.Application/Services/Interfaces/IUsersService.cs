@@ -19,5 +19,7 @@ namespace Auth.MicroService.Application.Services.Interfaces
         Task DeleteUser(int id, string token, CancellationToken ct);
 
         Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct);
+
+        Task<UserInfo> GetUserById(int id, CancellationToken ct);
     }
 }

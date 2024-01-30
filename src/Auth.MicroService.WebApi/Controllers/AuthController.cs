@@ -177,7 +177,7 @@ namespace Auth.MicroService.WebApi.Controllers
             if (isValid)
             {
                 Log.Information("A token has been successfully validated.");
-                return Ok(new { Message = "Token is valid."});
+                return Ok(new { Message = "Token is valid." });
             }
             else
             {
