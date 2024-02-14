@@ -7,6 +7,7 @@ using Auth.MicroService.Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -59,6 +60,11 @@ namespace Auth.MicroService.Application.Services
 
             if (model.Role.HasValue)
             {
+                var roleEnum = (Role)model.Role;
+                if (!Enum.IsDefined(typeof(Role), roleEnum))
+                {
+                    throw new InvalidEnumArgumentException($"The given value '{model.Role}' is not valid for Role definition.");
+                }
                 // Validate user roles hierarchy
                 CheckUserHierarchy(userRole.Value, model.Role.Value);
             }

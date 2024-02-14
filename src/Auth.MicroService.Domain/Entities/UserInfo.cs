@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Auth.MicroService.Domain.Entities
+﻿namespace Auth.MicroService.Domain.Entities
 {
     public class UserInfo
     {
