@@ -33,7 +33,7 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
-        /// Gets the list of users wating for approval.
+        /// Gets the list of users waiting for approval.
         /// </summary>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
@@ -49,6 +49,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <summary>
         /// Allows the administrator or manager to approve one user.
         /// </summary>
+        /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager")]
@@ -144,7 +145,7 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
-        /// Delete user.
+        /// Delete a user.
         /// </summary>
         /// <param name="id">The user id.</param>
         /// <param name="ct">The cancellation token.</param>
