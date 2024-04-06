@@ -32,21 +32,21 @@ namespace Auth.MicroService.Application.Services
             _jwtProvider = jwtProvider;
         }
 
-        public async Task<IEnumerable<UserInfo>> GetAllUsersForApproval(CancellationToken ct)
+        public async Task<IEnumerable<UserInfo>> GetAllUsersForApproval(int page, int perPage, CancellationToken ct)
         {
-            return await _userRepository.GetAllInactiveUsers(ct);
+            return await _userRepository.GetAllInactiveUsers(page, perPage, ct);
         }
 
-        public async Task ApproveUser(ApproveUserModel model, string token, CancellationToken ct)
+        public async Task ApproveUser(int id, int? roleId, string token, CancellationToken ct)
         {
-            var user = await _userRepository.GetUserById(model.Id, ct);
+            var user = await _userRepository.GetUserById(id, ct);
 
             if (user is null)
             {
                 throw new Exception("User not found.");
             }
 
-            if (user.Status == true)
+            if (user.Status)
             {
                 throw new Exception("User already active.");
             }
@@ -58,31 +58,43 @@ namespace Auth.MicroService.Application.Services
                 throw new UnauthorizedAccessException("Invalid token.");
             }
 
-            if (model.Role.HasValue)
+            Role? roleEnum = null;
+            if (roleId.HasValue)
             {
-                var roleEnum = (Role)model.Role;
+                roleEnum = (Role)roleId.Value;
                 if (!Enum.IsDefined(typeof(Role), roleEnum))
                 {
-                    throw new InvalidEnumArgumentException($"The given value '{model.Role}' is not valid for Role definition.");
+                    throw new InvalidEnumArgumentException($"The given value '{roleId}' is not valid for Role definition.");
                 }
                 // Validate user roles hierarchy
-                CheckUserHierarchy(userRole.Value, model.Role.Value);
+                CheckUserHierarchy(userRole.Value, roleEnum.Value);
             }
-
+            
             var updatedUser = User.SetUserActivation(
                 user,
-                model.Role.HasValue ? model.Role.Value : null,
+                roleEnum,
                 status: true);
 
             await _userRepository.UpdateUser(updatedUser, ct);
         }
 
-        public async Task<string> UpdateUserInfo(UpdateUserModel model, string token, CancellationToken ct)
+        public async Task<string> UpdateUserInfo(int id, UpdateUserModel model, string token, CancellationToken ct)
         {
             var userId = _jwtProvider.GetUserIdFromToken(token);
             if (userId is null)
             {
                 throw new UnauthorizedAccessException("Invalid token.");
+            }
+
+            var userRole = _jwtProvider.GetUserRoleFromToken(token);
+            if (userRole is null)
+            {
+                throw new UnauthorizedAccessException("Invalid token.");
+            }
+            
+            if (userId != id && userRole != Role.Admin)
+            {
+                throw new UnauthorizedAccessException("You have no permissions to update other user's information.");
             }
 
             var user = await _userRepository.GetUserById(userId.Value, ct);
@@ -102,7 +114,7 @@ namespace Auth.MicroService.Application.Services
                 user.Status
             );
 
-            if (model.Email is not null && !string.Equals(model.Email, user.Email, StringComparison.OrdinalIgnoreCase))
+            if (!string.IsNullOrEmpty(model.Email) && !string.Equals(model.Email, user.Email, StringComparison.OrdinalIgnoreCase))
             {
                 var userByEmail = await _userRepository.GetUserByEmail(model.Email, ct);
                 if (userByEmail is not null)
@@ -177,9 +189,9 @@ namespace Auth.MicroService.Application.Services
             await _userRepository.UpdateUser(deactivatedUser, ct);
         }
 
-        public async Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct)
+        public async Task<IEnumerable<UserInfo>> GetAllUsers(string search, int page, int perPage, CancellationToken ct)
         {
-            return await _userRepository.GetAllUsers(ct);
+            return await _userRepository.GetAllUsers(search, page, perPage, ct);
         }
 
         public async Task<UserInfo> GetUserById(int id, CancellationToken ct)

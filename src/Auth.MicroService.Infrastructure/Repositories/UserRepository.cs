@@ -47,8 +47,10 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 .SingleOrDefaultAsync(u => u.UserId == id, ct);
         }
 
-        public async Task<IEnumerable<UserInfo>> GetAllInactiveUsers(CancellationToken ct)
+        public async Task<IEnumerable<UserInfo>> GetAllInactiveUsers(int page, int perPage, CancellationToken ct)
         {
+            int skip = (page - 1) * perPage;
+            
             return await _authDbContext.Set<User>()
                 .AsNoTracking()
                 .Where(u => u.Status == false)
@@ -62,13 +64,15 @@ namespace Auth.MicroService.Infrastructure.Repositories
                     CreationDate = u.CreationDateUtc.ToString("g"),
                     LastUpdateDate = u.LastUpdateDateUtc.HasValue ? u.LastUpdateDateUtc.Value.ToString("g") : "No updates",
                 })
+                .Skip(skip)
+                .Take(perPage)
                 .ToListAsync(ct);
         }
 
         public async Task<string> UpdateUser(User user, CancellationToken ct)
         {
             var existingUser = await _authDbContext.Set<User>()
-                .SingleOrDefaultAsync(u => u.UserId == user.UserId);
+                .SingleOrDefaultAsync(u => u.UserId == user.UserId, cancellationToken: ct);
 
             if (existingUser is null)
             {
@@ -88,10 +92,23 @@ namespace Auth.MicroService.Infrastructure.Repositories
             return existingUser.Email;
         }
 
-        public async Task<IEnumerable<UserInfo>> GetAllUsers(CancellationToken ct)
+        public async Task<IEnumerable<UserInfo>> GetAllUsers(string search, int page, int perPage, CancellationToken ct)
         {
-            return await _authDbContext.Set<User>()
-                .AsNoTracking()
+            int skip = (page - 1) * perPage;
+
+            var query = _authDbContext.Set<User>()
+                .AsNoTracking();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(u => u.FirstName.ToLower().Contains(search.ToLower())
+                                         || u.LastName.ToLower().Contains(search.ToLower())
+                                         || u.Email.ToLower().Contains(search.ToLower()));
+            }
+
+            query = query.Skip(skip).Take(perPage);
+
+            return await query
                 .Select(u => new UserInfo
                 {
                     UserId = u.UserId.Value,
