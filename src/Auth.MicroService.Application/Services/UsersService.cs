@@ -22,6 +22,12 @@ namespace Auth.MicroService.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IJwtProvider _jwtProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsersService"/> class.
+        /// </summary>
+        /// <param name="passwordHasher">The password hasher.</param>
+        /// <param name="userRepository">The user repository.</param>
+        /// <param name="jwtProvider">The jwt provider.</param>
         public UsersService(
             IPasswordHasher<User> passwordHasher,
             IUserRepository userRepository,
@@ -32,11 +38,13 @@ namespace Auth.MicroService.Application.Services
             _jwtProvider = jwtProvider;
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<UserInfo>> GetAllUsersForApproval(int page, int perPage, CancellationToken ct)
         {
             return await _userRepository.GetAllInactiveUsers(page, perPage, ct);
         }
 
+        /// <inheritdoc/>
         public async Task ApproveUser(int id, int? roleId, string token, CancellationToken ct)
         {
             var user = await _userRepository.GetUserById(id, ct);
@@ -78,6 +86,7 @@ namespace Auth.MicroService.Application.Services
             await _userRepository.UpdateUser(updatedUser, ct);
         }
 
+        /// <inheritdoc/>
         public async Task<string> UpdateUserInfo(int id, UpdateUserModel model, string token, CancellationToken ct)
         {
             var userId = _jwtProvider.GetUserIdFromToken(token);
@@ -126,6 +135,7 @@ namespace Auth.MicroService.Application.Services
             return await _userRepository.UpdateUser(updatedUser, ct);
         }
 
+        /// <inheritdoc/>
         public async Task<string> ChangeUserPassword(ChangePasswordModel model, string token, CancellationToken ct)
         {
             var userId = _jwtProvider.GetUserIdFromToken(token);
@@ -157,7 +167,7 @@ namespace Auth.MicroService.Application.Services
                 user.FirstName,
                 user.LastName,
                 user.Email,
-                model.NewPassword, // the new password
+                model.NewPassword,
                 user.BirthDate,
                 user.RoleId,
                 user.Status
@@ -168,6 +178,7 @@ namespace Auth.MicroService.Application.Services
             return await _userRepository.UpdateUser(userToUpdate, ct);
         }
 
+        /// <inheritdoc/>
         public async Task DeleteUser(int id, string token, CancellationToken ct)
         {
             var user = await _userRepository.GetUserById(id, ct);
@@ -189,11 +200,13 @@ namespace Auth.MicroService.Application.Services
             await _userRepository.UpdateUser(deactivatedUser, ct);
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<UserInfo>> GetAllUsers(string search, int page, int perPage, CancellationToken ct)
         {
             return await _userRepository.GetAllUsers(search, page, perPage, ct);
         }
 
+        /// <inheritdoc/>
         public async Task<UserInfo> GetUserById(int id, CancellationToken ct)
         {
             var user = await _userRepository.GetUserInfoById(id, ct);
@@ -205,17 +218,16 @@ namespace Auth.MicroService.Application.Services
             return user;
         }
 
-        private void CheckUserHierarchy(Role userRole, Role roleToApply, bool isDelete = false)
+        private static void CheckUserHierarchy(Role userRole, Role roleToApply, bool isDelete = false)
         {
-            if ((int)roleToApply < (int)userRole)
+            if ((int)roleToApply >= (int)userRole) return;
+            
+            if (isDelete)
             {
-                if (isDelete)
-                {
-                    throw new Exception("You cannot deactivate a user with higher role than yours.");
-                }
-
-                throw new Exception("You cannot assign a role that is higher than yours.");
+                throw new Exception("You cannot deactivate a user with higher role than yours.");
             }
+
+            throw new Exception("You cannot assign a role that is higher than yours.");
         }
     }
 }

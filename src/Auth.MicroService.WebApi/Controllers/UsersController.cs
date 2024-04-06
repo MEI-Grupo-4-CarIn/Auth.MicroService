@@ -74,7 +74,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="roleId">The role to apply.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager")]
-        [HttpPost("{id:int}/approve")]
+        [HttpPost("{id:int}/approval")]
         public async Task<ActionResult> ApproveUser(int id, CancellationToken ct, [FromQuery] int? roleId)
         {
             try

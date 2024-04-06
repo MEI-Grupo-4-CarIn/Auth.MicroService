@@ -24,8 +24,16 @@ using System.Security.Cryptography;
 
 namespace Auth.MicroService.WebApi
 {
+    /// <summary>
+    /// This class has the entry point for the application.
+    /// </summary>
     public static class Program
     {
+        /// <summary>
+        /// Entry point for the application.
+        /// </summary>
+        /// <param name="args">The command line arguments.</param>
+        /// <returns>Exit code.</returns>
         private static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
