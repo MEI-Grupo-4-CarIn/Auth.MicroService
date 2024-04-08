@@ -7,12 +7,14 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using Auth.MicroService.Application.Models;
 
 namespace Auth.MicroService.Application.JwtUtils
 {
     public sealed class JwtProvider : IJwtProvider
     {
         private const string EmailClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
+        private const int LongExpireMs = 600000; // 10 minutes
 
         private readonly IConfiguration _configuration;
 
@@ -21,7 +23,7 @@ namespace Auth.MicroService.Application.JwtUtils
             _configuration = configuration;
         }
 
-        public string GenerateJwt(User user)
+        public TokenModel GenerateJwt(User user)
         {
             var claims = new Claim[]
             {
@@ -33,7 +35,7 @@ namespace Auth.MicroService.Application.JwtUtils
             return GenerateToken(claims);
         }
 
-        public string GeneratePasswordResetToken(User user)
+        public TokenModel GeneratePasswordResetToken(User user)
         {
             var claims = new Claim[]
             {
@@ -93,7 +95,7 @@ namespace Auth.MicroService.Application.JwtUtils
             }
         }
 
-        private string GenerateToken(Claim[] claims)
+        private TokenModel GenerateToken(Claim[] claims)
         {
             var rsa = new RSACryptoServiceProvider();
             rsa.FromXmlString(_configuration["JwtSettings:PrivateKey"]);
@@ -107,12 +109,27 @@ namespace Auth.MicroService.Application.JwtUtils
                 _configuration["JwtSettings:Audience"],
                 claims,
                 null,
-                DateTime.UtcNow.AddHours(1),
+                DateTime.UtcNow.AddMilliseconds(LongExpireMs),
                 signingCredentials);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new TokenModel
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                ExpiresIn = token.ValidTo.Ticks,
+                RefreshToken = GenerateRefreshToken()
+            };
         }
-
+        
+        private static string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
+        
         private string ValidateTokenByClaim(
             string token,
             string claimType,

@@ -34,6 +34,40 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
+        /// Gets a list of users.
+        /// </summary>
+        /// <param name="ct">The cancellation token.</param>
+        /// <param name="search">The search text.</param>
+        /// <param name="page">The page to be requested.</param>
+        /// <param name="perPage">The amount of items requested per page.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserInfo>>> GetAllUsers(CancellationToken ct,
+            [FromQuery] string search,
+            [FromQuery] int perPage = 10,
+            [FromQuery] int page = 1)
+        {
+            try
+            {
+                if (perPage > MaxPerPage)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(perPage), $"The maximum number of items per page is {MaxPerPage}.");
+                }
+                
+                var usersList = await _usersService.GetAllUsers(search, page, perPage, ct);
+                return Ok(usersList.Any() ? usersList : "No users to show.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = "An error occurred while retrieving users.",
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
         /// Gets the list of users waiting for approval.
         /// </summary>
         /// <param name="ct">The cancellation token.</param>
@@ -43,7 +77,8 @@ namespace Auth.MicroService.WebApi.Controllers
         [Authorize(Roles = "Admin, Manager")]
         [HttpGet("waiting-for-approval")]
         public async Task<ActionResult> GetUsersForApproval(CancellationToken ct,
-            [FromQuery] int page = 1, [FromQuery] int perPage = 10)
+            [FromQuery] int page = 1,
+            [FromQuery] int perPage = 10)
         {
             try
             {
@@ -75,7 +110,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager")]
         [HttpPost("{id:int}/approval")]
-        public async Task<ActionResult> ApproveUser(int id, CancellationToken ct, [FromQuery] int? roleId)
+        public async Task<ActionResult> ApproveUser(int id, CancellationToken ct,
+            [FromQuery] int? roleId)
         {
             try
             {
@@ -106,7 +142,9 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager, Driver")]
         [HttpPatch("{id:int}")]
-        public async Task<ActionResult> UpdateUserInfo(int id, PatchUpdateUserModel model,CancellationToken ct)
+        public async Task<ActionResult> UpdateUserInfo(int id,
+            PatchUpdateUserModel model,
+            CancellationToken ct)
         {
             try
             {
@@ -187,40 +225,6 @@ namespace Auth.MicroService.WebApi.Controllers
                 return BadRequest(new ErrorResponseModel
                 {
                     Error = $"An error occurred while deactivating the user with id '{id}'.",
-                    Message = ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// Gets a list of users.
-        /// </summary>
-        /// <param name="ct">The cancellation token.</param>
-        /// <param name="search">The search text.</param>
-        /// <param name="page">The page to be requested.</param>
-        /// <param name="perPage">The amount of items requested per page.</param>
-        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserInfo>>> GetAllUsers(CancellationToken ct,
-            [FromQuery] string search,
-            [FromQuery] int perPage = 10,
-            [FromQuery] int page = 1)
-        {
-            try
-            {
-                if (perPage > MaxPerPage)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(perPage), $"The maximum number of items per page is {MaxPerPage}.");
-                }
-                
-                var usersList = await _usersService.GetAllUsers(search, page, perPage, ct);
-                return Ok(usersList.Any() ? usersList : "No users to show.");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ErrorResponseModel
-                {
-                    Error = "An error occurred while retrieving users.",
                     Message = ex.Message
                 });
             }

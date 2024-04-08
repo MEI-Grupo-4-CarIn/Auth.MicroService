@@ -87,6 +87,7 @@ namespace Auth.MicroService.WebApi
             builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             builder.Services.AddSingleton<IJwtProvider, JwtProvider>();
 
