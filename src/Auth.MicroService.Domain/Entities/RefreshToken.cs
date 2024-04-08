@@ -75,5 +75,13 @@ namespace Auth.MicroService.Domain.Entities
 
             return this;
         }
+        
+        public RefreshToken UpdateExpiresIn(
+            DateTime expiresIn)
+        {
+            this.ExpiresIn = expiresIn;
+
+            return this;
+        }
     }
 }

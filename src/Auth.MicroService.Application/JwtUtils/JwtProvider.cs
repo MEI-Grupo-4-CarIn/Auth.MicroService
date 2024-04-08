@@ -14,7 +14,7 @@ namespace Auth.MicroService.Application.JwtUtils
     public sealed class JwtProvider : IJwtProvider
     {
         private const string EmailClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
-        private const int LongExpireMs = 600000; // 10 minutes
+        private const int LongExpireSeconds = 600; // 10 minutes
 
         private readonly IConfiguration _configuration;
 
@@ -23,7 +23,7 @@ namespace Auth.MicroService.Application.JwtUtils
             _configuration = configuration;
         }
 
-        public TokenModel GenerateJwt(User user)
+        public TokenModel GenerateJwt(User user, bool needsRefreshToken = true)
         {
             var claims = new Claim[]
             {
@@ -32,7 +32,7 @@ namespace Auth.MicroService.Application.JwtUtils
                new Claim(ClaimTypes.Role, user.RoleId.ToString())
             };
 
-            return GenerateToken(claims);
+            return GenerateToken(claims, needsRefreshToken);
         }
 
         public TokenModel GeneratePasswordResetToken(User user)
@@ -43,7 +43,7 @@ namespace Auth.MicroService.Application.JwtUtils
                 new Claim("isPasswordReset", "true")
             };
 
-            return GenerateToken(claims);
+            return GenerateToken(claims, false);
         }
 
         public bool ValidateToken(string token)
@@ -95,7 +95,7 @@ namespace Auth.MicroService.Application.JwtUtils
             }
         }
 
-        private TokenModel GenerateToken(Claim[] claims)
+        private TokenModel GenerateToken(Claim[] claims, bool needsRefreshToken)
         {
             var rsa = new RSACryptoServiceProvider();
             rsa.FromXmlString(_configuration["JwtSettings:PrivateKey"]);
@@ -109,14 +109,14 @@ namespace Auth.MicroService.Application.JwtUtils
                 _configuration["JwtSettings:Audience"],
                 claims,
                 null,
-                DateTime.UtcNow.AddMilliseconds(LongExpireMs),
+                DateTime.UtcNow.AddSeconds(LongExpireSeconds),
                 signingCredentials);
 
             return new TokenModel
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
-                ExpiresIn = token.ValidTo.Ticks,
-                RefreshToken = GenerateRefreshToken()
+                ExpiresIn = LongExpireSeconds,
+                RefreshToken = needsRefreshToken ? GenerateRefreshToken() : null
             };
         }
         

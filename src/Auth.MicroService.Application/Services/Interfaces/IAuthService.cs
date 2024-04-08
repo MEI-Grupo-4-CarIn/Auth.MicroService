@@ -28,10 +28,11 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <summary>
         /// Performs one user logout.
         /// </summary>
+        /// <param name="model">The model.</param>
         /// <param name="token">The token.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<int?> UserLogout(string token, CancellationToken ct);
+        Task<int?> UserLogout(LogoutModel model, string token, CancellationToken ct);
 
         /// <summary>
         /// Generates a password reset token.

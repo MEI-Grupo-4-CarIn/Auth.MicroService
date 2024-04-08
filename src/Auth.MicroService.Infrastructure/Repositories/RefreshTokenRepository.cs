@@ -23,10 +23,12 @@ namespace Auth.MicroService.Infrastructure.Repositories
             await _authDbContext.SaveChangesAsync(ct);
         }
 
-        public async Task RevokeRefreshTokenForUser(int userId, CancellationToken ct)
+        public async Task RevokeRefreshTokenForUser(int userId, string refreshToken, CancellationToken ct)
         {
             var existingRefreshToken = await _authDbContext.Set<RefreshToken>()
-                .FirstOrDefaultAsync(r => r.UserId == userId && !r.IsRevoked, cancellationToken: ct);
+                .SingleOrDefaultAsync(r => r.Token.Equals(refreshToken)
+                                           && r.UserId == userId
+                                           && !r.IsRevoked, ct);
 
             if (existingRefreshToken is null)
             {
@@ -38,6 +40,28 @@ namespace Auth.MicroService.Infrastructure.Repositories
                DateTime.UtcNow);
 
             await _authDbContext.SaveChangesAsync(ct);
+        }
+
+        public async Task UpdateExpiresIn(int refreshTokenId, DateTime dateTime, CancellationToken ct)
+        {
+            var existingRefreshToken = await _authDbContext.Set<RefreshToken>()
+                .SingleOrDefaultAsync(r => r.RefreshTokenId == refreshTokenId, ct);
+
+            if (existingRefreshToken is null)
+            {
+                return;
+            }
+
+            existingRefreshToken.UpdateExpiresIn(dateTime);
+
+            await _authDbContext.SaveChangesAsync(ct);
+        }
+
+        public async Task<RefreshToken> GetRefreshToken(string refreshToken, CancellationToken ct)
+        {
+            return await _authDbContext.Set<RefreshToken>()
+                .AsNoTracking()
+                .SingleOrDefaultAsync(r => r.Token.Equals(refreshToken), ct);
         }
     }
 }

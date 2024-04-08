@@ -66,7 +66,6 @@ namespace Auth.MicroService.Application.Services
             ArgumentNullException.ThrowIfNull(model);
 
             var user = await _userRepository.GetUserByEmail(model.Email, ct);
-
             if (user is null)
             {
                 throw new UnauthorizedAccessException("Invalid login attempt.");
@@ -90,9 +89,8 @@ namespace Auth.MicroService.Application.Services
                 null,
                 user.UserId.Value,
                 tokenModel.RefreshToken,
-                new DateTime(tokenModel.ExpiresIn));
+                DateTime.UtcNow.AddDays(30));
             
-            await _refreshTokenRepository.RevokeRefreshTokenForUser(user.UserId.Value, ct);
             await _refreshTokenRepository.AddNewRefreshToken(refreshToken, ct);
             
             ResetFailedLoginAttempt(model.Email);
@@ -100,16 +98,15 @@ namespace Auth.MicroService.Application.Services
             return tokenModel;
         }
 
-        public async Task<int?> UserLogout(string token, CancellationToken ct)
+        public async Task<int?> UserLogout(LogoutModel model, string token, CancellationToken ct)
         {
             var userId = _jwtProvider.GetUserIdFromToken(token);
-
             if (userId is null)
             {
                 return null;
             }
 
-            await _refreshTokenRepository.RevokeRefreshTokenForUser(userId.Value, ct);
+            await _refreshTokenRepository.RevokeRefreshTokenForUser(userId.Value, model.RefreshToken, ct);
             return userId.Value;
         }
 
@@ -128,6 +125,7 @@ namespace Auth.MicroService.Application.Services
             return tokenModel;
         }
 
+        /// <inheritdoc/>
         public async Task<string> ResetPassword(ResetPasswordModel model, CancellationToken ct)
         {
             ArgumentNullException.ThrowIfNull(model);
@@ -169,30 +167,33 @@ namespace Auth.MicroService.Application.Services
         /// <inheritdoc/>
         public async Task<TokenModel> RefreshOneToken(string refreshToken, CancellationToken ct)
         {
-            var isValid = ValidateToken(refreshToken, ct);
-
-            if (!isValid)
+            var refreshTokenEntity = await _refreshTokenRepository.GetRefreshToken(refreshToken, ct);
+            if (refreshTokenEntity is null)
             {
-                return null;
+                throw new UnauthorizedAccessException("Invalid refresh token.");
             }
 
-            var userId = _jwtProvider.GetUserIdFromToken(refreshToken);
-
-            if (userId is null)
-            {
-                return null;
-            }
-
-            var user = await _userRepository.GetUserById(userId.Value, ct);
-
+            var user = await _userRepository.GetUserById(refreshTokenEntity.UserId, ct);
             if (user is null)
             {
-                return null;
+                throw new Exception("User not found.");
             }
 
-            // Generate a new token
-            var tokenModel = _jwtProvider.GenerateJwt(user);
-            return tokenModel;
+            // Generate a new token without refresh token
+            var tokenModel = _jwtProvider.GenerateJwt(user, false);
+            
+            // Add more 30 days to the existing refresh token
+            await _refreshTokenRepository.UpdateExpiresIn(
+                refreshTokenEntity.RefreshTokenId.Value,
+                DateTime.UtcNow.AddDays(30),
+                ct);
+            
+            return new TokenModel
+            {
+                Token = tokenModel.RefreshToken,
+                ExpiresIn = tokenModel.ExpiresIn,
+                RefreshToken = refreshTokenEntity.Token
+            };
         }
 
         private void IncrementFailedLoginAttempt(string email)

@@ -6,7 +6,7 @@ namespace Auth.MicroService.Application.JwtUtils
 {
     public interface IJwtProvider
     {
-        TokenModel GenerateJwt(User user);
+        TokenModel GenerateJwt(User user, bool needsRefreshToken = true);
         TokenModel GeneratePasswordResetToken(User user);
         bool ValidateToken(string token);
         string ValidatePasswordResetToken(string token);

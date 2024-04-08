@@ -43,7 +43,6 @@ namespace Auth.MicroService.WebApi.Controllers
         public async Task<ActionResult> Register(PostRegisterModel model, CancellationToken ct)
         {
             var registerModel = UserMapper.PostRegisterModelToRegisterModel(model);
-
             try
             {
                 await _authService.UserRegistration(registerModel, ct);
@@ -95,16 +94,18 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <summary>
         /// Logouts a user.
         /// </summary>
+        /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager, Driver")]
         [HttpPost("logout")]
-        public async Task<ActionResult<string>> Logout(CancellationToken ct)
+        public async Task<ActionResult<string>> Logout(PostLogoutModel model, CancellationToken ct)
         {
+            var logoutModel = UserMapper.PostLogoutModelToLogoutModel(model);
             try
             {
                 var token = GetTokenFromHeader();
-                var userId = await _authService.UserLogout(token, ct);
+                var userId = await _authService.UserLogout(logoutModel, token, ct);
 
                 if (userId is null)
                 {
@@ -210,7 +211,7 @@ namespace Auth.MicroService.WebApi.Controllers
                 return BadRequest(new ErrorResponseModel
                 {
                     Error = $"An error occurred while sending the request.",
-                    Message = "Invalid token"
+                    Message = "Invalid token."
                 });
             }
         }
@@ -224,14 +225,20 @@ namespace Auth.MicroService.WebApi.Controllers
         [HttpPost("refreshToken")]
         public async Task<ActionResult<string>> RefreshToken(string refreshToken, CancellationToken ct)
         {
-            var newTokenModel = await _authService.RefreshOneToken(refreshToken, ct);
-
-            if (newTokenModel is null)
+            try
             {
-                return Unauthorized();
+                var newTokenModel = await _authService.RefreshOneToken(refreshToken, ct);
+                return Ok(newTokenModel);
             }
-
-            return Ok(newTokenModel);
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while refreshing the token.");
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = "An error occurred while refreshing the token.",
+                    Message = ex.Message
+                });
+            }
         }
         
         private string GetTokenFromHeader()
