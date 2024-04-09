@@ -83,5 +83,23 @@ namespace Auth.MicroService.Domain.Entities
 
             return this;
         }
+
+        public static RefreshToken CreateRefreshTokenForTests(
+            int userId,
+            string token,
+            DateTime expiresIn,
+            DateTime createdDateUtc,
+            bool isRevoked,
+            DateTime? revokedDateUtc)
+        {
+            return RefreshToken.Create(
+                9999,
+                userId,
+                token,
+                expiresIn,
+                createdDateUtc,
+                isRevoked,
+                revokedDateUtc);
+        }
     }
 }

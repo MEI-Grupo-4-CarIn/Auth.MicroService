@@ -193,41 +193,38 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <summary>
         /// Validates one token.
         /// </summary>
-        /// <param name="token">The token.</param>
+        /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("validateToken")]
-        public ActionResult ValidateToken(string token, CancellationToken ct)
+        public ActionResult ValidateToken(PostValidateTokenModel model, CancellationToken ct)
         {
-            var isValid = _authService.ValidateToken(token, ct);
-
-            if (isValid)
-            {
-                Log.Information("A token has been successfully validated.");
-                return Ok(new { Message = "Token is valid." });
-            }
-            else
+            var isValid = _authService.ValidateToken(model.Token, ct);
+            if (!isValid)
             {
                 return BadRequest(new ErrorResponseModel
                 {
-                    Error = $"An error occurred while sending the request.",
+                    Error = "An error occurred while sending the request.",
                     Message = "Invalid token."
                 });
             }
+            
+            Log.Information("A token has been successfully validated.");
+            return Ok(new { Message = "Token is valid." });
         }
 
         /// <summary>
         /// Refreshes one token.
         /// </summary>
-        /// <param name="refreshToken">The refresh token.</param>
+        /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("refreshToken")]
-        public async Task<ActionResult<string>> RefreshToken(string refreshToken, CancellationToken ct)
+        public async Task<ActionResult<string>> RefreshToken(PostRefreshTokenModel model, CancellationToken ct)
         {
             try
             {
-                var newTokenModel = await _authService.RefreshOneToken(refreshToken, ct);
+                var newTokenModel = await _authService.RefreshOneToken(model.RefreshToken, ct);
                 return Ok(newTokenModel);
             }
             catch (Exception ex)

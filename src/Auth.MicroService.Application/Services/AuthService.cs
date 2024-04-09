@@ -168,7 +168,9 @@ namespace Auth.MicroService.Application.Services
         public async Task<TokenModel> RefreshOneToken(string refreshToken, CancellationToken ct)
         {
             var refreshTokenEntity = await _refreshTokenRepository.GetRefreshToken(refreshToken, ct);
-            if (refreshTokenEntity is null)
+            if (refreshTokenEntity is null
+                || refreshTokenEntity.IsRevoked
+                || refreshTokenEntity.ExpiresIn < DateTime.UtcNow)
             {
                 throw new UnauthorizedAccessException("Invalid refresh token.");
             }
@@ -190,7 +192,7 @@ namespace Auth.MicroService.Application.Services
             
             return new TokenModel
             {
-                Token = tokenModel.RefreshToken,
+                Token = tokenModel.Token,
                 ExpiresIn = tokenModel.ExpiresIn,
                 RefreshToken = refreshTokenEntity.Token
             };
