@@ -1,12 +1,13 @@
-﻿using Auth.MicroService.Domain.Entities;
+﻿using Auth.MicroService.Application.Models;
+using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Enums;
 
 namespace Auth.MicroService.Application.JwtUtils
 {
     public interface IJwtProvider
     {
-        string GenerateJwt(User user);
-        string GeneratePasswordResetToken(User user);
+        TokenModel GenerateJwt(User user, bool needsRefreshToken = true);
+        TokenModel GeneratePasswordResetToken(User user);
         bool ValidateToken(string token);
         string ValidatePasswordResetToken(string token);
         int? GetUserIdFromToken(string token);

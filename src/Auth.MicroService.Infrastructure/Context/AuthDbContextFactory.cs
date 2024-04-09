@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using System.IO;
@@ -9,8 +10,11 @@ namespace Auth.MicroService.Infrastructure.Context
     {
         public AuthDbContext CreateDbContext(string[] args)
         {
+            var currentDirectory = Directory.GetCurrentDirectory();
+            var path = Path.Combine(Directory.GetParent(currentDirectory).FullName, "Auth.MicroService.WebApi");
+            
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "..\\Auth.MicroService.WebApi"))
+                .SetBasePath(path)
                 .AddJsonFile("appsettings.json")
                 .Build();
 

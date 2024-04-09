@@ -23,7 +23,16 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="model">The login model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<string> UserLogin(LoginModel model, CancellationToken ct);
+        Task<TokenModel> UserLogin(LoginModel model, CancellationToken ct);
+
+        /// <summary>
+        /// Performs one user logout.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="token">The token.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        Task<int?> UserLogout(LogoutModel model, string token, CancellationToken ct);
 
         /// <summary>
         /// Generates a password reset token.
@@ -31,7 +40,7 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="email">The user's email.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<string> GeneratePasswordResetToken(string email, CancellationToken ct);
+        Task<TokenModel> GeneratePasswordResetToken(string email, CancellationToken ct);
 
         /// <summary>
         /// Resets a user's password.
@@ -55,6 +64,6 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="token">The token.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<string> RefreshToken(string token, CancellationToken ct);
+        Task<TokenModel> RefreshOneToken(string token, CancellationToken ct);
     }
 }

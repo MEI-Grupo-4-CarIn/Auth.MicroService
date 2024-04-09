@@ -16,18 +16,21 @@ namespace Auth.MicroService.Application.Services
     /// </summary>
     public class AuthService : IAuthService
     {
-        private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IUserRepository _userRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly IPasswordHasher<User> _passwordHasher;
         private readonly IJwtProvider _jwtProvider;
         private readonly IMemoryCache _cache;
 
         public AuthService(
             IUserRepository userRepository,
+            IRefreshTokenRepository refreshTokenRepository,
             IPasswordHasher<User> passwordHasher,
             IJwtProvider jwtProvider,
             IMemoryCache cache)
         {
             _userRepository = userRepository;
+            _refreshTokenRepository = refreshTokenRepository;
             _passwordHasher = passwordHasher;
             _jwtProvider = jwtProvider;
             _cache = cache;
@@ -36,10 +39,7 @@ namespace Auth.MicroService.Application.Services
         /// <inheritdoc/>
         public async Task UserRegistration(RegisterModel model, CancellationToken ct)
         {
-            if (model is null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
+            ArgumentNullException.ThrowIfNull(model);
 
             var userByEmail = await _userRepository.GetUserByEmail(model.Email, ct);
             if (userByEmail is not null)
@@ -61,15 +61,11 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<string> UserLogin(LoginModel model, CancellationToken ct)
+        public async Task<TokenModel> UserLogin(LoginModel model, CancellationToken ct)
         {
-            if (model is null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
+            ArgumentNullException.ThrowIfNull(model);
 
             var user = await _userRepository.GetUserByEmail(model.Email, ct);
-
             if (user is null)
             {
                 throw new UnauthorizedAccessException("Invalid login attempt.");
@@ -88,18 +84,36 @@ namespace Auth.MicroService.Application.Services
                 throw new UnauthorizedAccessException("Inactive user.");
             }
 
-            var token = _jwtProvider.GenerateJwt(user);
+            var tokenModel = _jwtProvider.GenerateJwt(user);
+            var refreshToken = RefreshToken.CreateNewRefreshToken(
+                null,
+                user.UserId.Value,
+                tokenModel.RefreshToken,
+                DateTime.UtcNow.AddDays(30));
+            
+            await _refreshTokenRepository.AddNewRefreshToken(refreshToken, ct);
+            
             ResetFailedLoginAttempt(model.Email);
-            return token;
+            
+            return tokenModel;
+        }
+
+        public async Task<int?> UserLogout(LogoutModel model, string token, CancellationToken ct)
+        {
+            var userId = _jwtProvider.GetUserIdFromToken(token);
+            if (userId is null)
+            {
+                return null;
+            }
+
+            await _refreshTokenRepository.RevokeRefreshTokenForUser(userId.Value, model.RefreshToken, ct);
+            return userId.Value;
         }
 
         /// <inheritdoc/>
-        public async Task<string> GeneratePasswordResetToken(string email, CancellationToken ct)
+        public async Task<TokenModel> GeneratePasswordResetToken(string email, CancellationToken ct)
         {
-            if (email is null)
-            {
-                throw new ArgumentNullException(nameof(email));
-            }
+            ArgumentNullException.ThrowIfNull(email);
 
             var user = await _userRepository.GetUserByEmail(email, ct);
             if (user is null)
@@ -107,17 +121,15 @@ namespace Auth.MicroService.Application.Services
                 throw new UnauthorizedAccessException("Invalid email.");
             }
 
-            var token = _jwtProvider.GeneratePasswordResetToken(user);
-            return token;
+            var tokenModel = _jwtProvider.GeneratePasswordResetToken(user);
+            return tokenModel;
         }
 
+        /// <inheritdoc/>
         public async Task<string> ResetPassword(ResetPasswordModel model, CancellationToken ct)
         {
-            if (model is null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
-            
+            ArgumentNullException.ThrowIfNull(model);
+
             var email = _jwtProvider.ValidatePasswordResetToken(model.Token);
             if (email is null)
             {
@@ -153,32 +165,37 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<string> RefreshToken(string token, CancellationToken ct)
+        public async Task<TokenModel> RefreshOneToken(string refreshToken, CancellationToken ct)
         {
-            var isValid = ValidateToken(token, ct);
-
-            if (!isValid)
+            var refreshTokenEntity = await _refreshTokenRepository.GetRefreshToken(refreshToken, ct);
+            if (refreshTokenEntity is null
+                || refreshTokenEntity.IsRevoked
+                || refreshTokenEntity.ExpiresIn < DateTime.UtcNow)
             {
-                return null;
+                throw new UnauthorizedAccessException("Invalid refresh token.");
             }
 
-            var userId = _jwtProvider.GetUserIdFromToken(token);
-
-            if (userId is null)
-            {
-                return null;
-            }
-
-            var user = await _userRepository.GetUserById(userId.Value, ct);
-
+            var user = await _userRepository.GetUserById(refreshTokenEntity.UserId, ct);
             if (user is null)
             {
-                return null;
+                throw new Exception("User not found.");
             }
 
-            // Generate a new token
-            var newToken = _jwtProvider.GenerateJwt(user);
-            return newToken;
+            // Generate a new token without refresh token
+            var tokenModel = _jwtProvider.GenerateJwt(user, false);
+            
+            // Add more 30 days to the existing refresh token
+            await _refreshTokenRepository.UpdateExpiresIn(
+                refreshTokenEntity.RefreshTokenId.Value,
+                DateTime.UtcNow.AddDays(30),
+                ct);
+            
+            return new TokenModel
+            {
+                Token = tokenModel.Token,
+                ExpiresIn = tokenModel.ExpiresIn,
+                RefreshToken = refreshTokenEntity.Token
+            };
         }
 
         private void IncrementFailedLoginAttempt(string email)
