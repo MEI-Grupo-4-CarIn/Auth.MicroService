@@ -133,7 +133,7 @@ namespace Auth.MicroService.Domain.Entities
                 user.LastUpdateDateUtc);
         }
 
-        public static User SetUserActivation(User user, Role? roleId, bool? status)
+        public static User SetUserActivation(User user, Role? role, bool? status)
         {
             return new User(
                 user.UserId,
@@ -142,7 +142,7 @@ namespace Auth.MicroService.Domain.Entities
                 user.Email,
                 user.Password,
                 user.BirthDate,
-                roleId ?? user.RoleId,
+                role ?? user.RoleId,
                 status ?? user.Status,
                 user.CreationDateUtc,
                 user.LastUpdateDateUtc);

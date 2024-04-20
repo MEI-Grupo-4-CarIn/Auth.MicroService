@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d9843b60-37e3-4fe1-983b-19a900c993da",
+		"_postman_id": "f6784d8a-4438-4a1d-af40-0a842ddbc2ba",
 		"name": "Auth.MicroService",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "13807037"
@@ -58,6 +58,43 @@
 							"path": [
 								"auth",
 								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJlbWFpbCI6Im1hbmFnZXJAZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiTWFuYWdlciIsImV4cCI6MTcxMjY4NDU4MCwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9.kGo-Vz9HjI_s1PGXFjMIhc9Je0r2mRZbk-FRzTrNiM3gYjTVpKIVucOl7ZOA62emhds9lIURXY6ZmTWCKDM7KP057175K3kn3NF-zAEuME9-qAEjsr8eiKooU2bypJ1OTBCD2JR_Pm5RAy3CibS5u5LXBxcV5RaP3C1RMNQd7rgEFexplfVDCkzKKcCLd3cn1qVq_d-8kBO83dKHmVxjKnpPlakfqVv05mQy7YXGpDxUKCw1HxfN1HIdb1brZBur2IlUsGHurAIQQvbCBQ0hmdeq6Zdm2YOZgLuSS2L7LwlVSP93Do6Xc8ChmVdFqCarSHfQ6SPJuMkWJbV1ZQrOGQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"l4LoUQZp9UMAeAHuuyaAKaKqher/wQxCPCoUrRknpko=\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{auth-microservice-url}}api/auth/logout",
+							"host": [
+								"{{auth-microservice-url}}api"
+							],
+							"path": [
+								"auth",
+								"logout"
 							]
 						}
 					},
@@ -171,14 +208,49 @@
 			"name": "Users",
 			"item": [
 				{
-					"name": "WaitingForApproval",
+					"name": "GetListOfUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{auth-microservice-url}}api/users?page=1&search=admin",
+							"host": [
+								"{{auth-microservice-url}}api"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Optional Parameter"
+								},
+								{
+									"key": "perPage",
+									"value": "2",
+									"description": "Optional Parameter",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "admin",
+									"description": "Optional Parameter"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "WaitingForApproval (Admin, Manager)",
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImVtYWlsQGVtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxNzgyMDM5LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.2V7qAwg4lJdbrSsb_m3Wd0SLVH5uRmGy4NcEzRWOfNc",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImFkbWluQGVtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzEyNjg0MDA4LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.KcyBIjT_3KP3J__e9432G3BKZs-4DwEJlnFbmUEFol75yLV1brWY3XxQLIvD3ENkfxQA7LUWDByNpuXktl3lVWoSZOcmb309Gm7nJOlDRZEUn4QJtSh8V9zk3Nbsuvm_FKNZFAKbnKlYgeDjyd1uudRti8YYW11UDOYxNHXjJrMx84gjA8SEAZI5PpeZrNky3sp6eqsEX-IPR0oVQyLc2osEm35NHF24-qd39nv8kWWGYExQEIQhzqigfm8zzdd90JMXRNrAGMAtG5ABUfmuB2Zi8WsDXnwWLAvYg7NkesL0zkxUsffZKkZADCMz4E3JE7AFM_dVNQ8rl6qL9M6qHQ",
 									"type": "string"
 								}
 							]
@@ -186,64 +258,68 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{auth-microservice-url}}api/users/waiting-for-approval-list",
+							"raw": "{{auth-microservice-url}}api/users/waiting-for-approval?page=1&perPage=10",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
 							"path": [
 								"users",
-								"waiting-for-approval-list"
+								"waiting-for-approval"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Optional Parameter"
+								},
+								{
+									"key": "perPage",
+									"value": "10",
+									"description": "Optional Parameter"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "ApproveUser",
+					"name": "ApproveUser (Admin, Manager)",
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImVtYWlsQGVtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxODYzODE0LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.26hQR84RWZqwndg9nJ6bzBEHQScbbj3Lf6tFyJXYHI0",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImFkbWluQGVtYWlsLmNvbSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzA3OTQzMzg3LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.IWPu5F2MpVPBYJXa5HSFuS_mPwCoWuvxMwYReMTQ3hlhZ0qGm_JyibVMq8AbyTB3FqE2Jir5HhZMH1PAdYF9AvVjRuRXY2eONvs8Zkp3MDnSJn3VnERq40cdWO1dGZVnmkkvgizeq5hGkZGa62C9wf2GE0-FfzuSzRSAw4cxnYvTIs2v4g3Bq-nAQp4DaYl_4c4jLGyXefgPo-RcHcTwT8P_lw-t0u18tlZpBoBLL-RvE5hBUlcoLn66W-5QUBtpBpTZ4dQZF7XDi3JoBy-TenziY2a-kO4sMzMAGJYmH1E_5qyq5wx0EciJkIFU3TA9nPkWNoyJiUPa4aXS1yWU_w",
 									"type": "string"
 								}
 							]
 						},
 						"method": "POST",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"id\": 5,\r\n    \"role\": 1 // optional\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
-							"raw": "{{auth-microservice-url}}api/users/approve-user",
+							"raw": "{{auth-microservice-url}}api/users/3/approval",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
 							"path": [
 								"users",
-								"approve-user"
+								"3",
+								"approval"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "UpdateUser",
+					"name": "UpdateUser (Admin, Manager, Driver)",
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJlbWFpbCI6ImExNDg1OEBhbHVkZGRub3MuaXBjYS5wdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxNzk3Mzg0LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.3WAX8q-H3N-f9Kt17OnUI4j1XlKvp8SnT7AVlAyo8Is",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjIiLCJlbWFpbCI6Im1hbmFnZXJAZW1haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiTWFuYWdlciIsImV4cCI6MTcxMjQwNjkxOCwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9.MGwKaNzciF-HtRiY6n8wiR0EGmR-m3ZXxCd7SajC7k2AXFaOiVd_bBdGTsRRFZlux7zTcyDd3KcuCJFXv1H6QBX419ZQuGfFZLb0djCzyNFbiw8IbNlU0XTYBYb2gzkgSvKo7T7SawyRJaoafP5g8BxGGEW_dM1cW2Zd1k3eHAAeRYvIwcd82Kl91YC-f2DebzLZ2T2JCnUFxgyK6OJSxvmmhe7xf3PSnAIBFzRGs6DuC7OvzBGjA5xjHg52XuPSB2-szkCRylhaVePwLV97Qhl350Hit073EPtUnj5uiaE79w4d8F0agnVCmJI7SomghSMNg6WEK5ccTLq4Tvunew",
 									"type": "string"
 								}
 							]
@@ -252,7 +328,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Joaquim\", // optional\r\n    \"lastName\": \"Marques\", // optional\r\n    \"email\": \"emailabcd@email.com\" // optional\r\n}",
+							"raw": "{\r\n    \"firstName\": \"Joaquim\", // optional\r\n    \"lastName\": \"Marques\", // optional\r\n    \"email\": \"manager@email.com\" // optional\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -260,13 +336,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{auth-microservice-url}}api/users/update-user-info",
+							"raw": "{{auth-microservice-url}}api/users/2",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
 							"path": [
 								"users",
-								"update-user-info"
+								"2"
 							]
 						},
 						"description": "This endpoint allows updating user information using an HTTP PATCH request. The request should be sent to {{auth-microservice-url}}api/users/update-user-info with an optional payload including the user's first name, last name, and email in the raw request body.\n\n### Request Body\n\n- `firstName` (optional) - The first name of the user.\n- `lastName` (optional) - The last name of the user.\n- `email` (optional) - The email address of the user.\n    \n\n### Response\n\nThe endpoint returns a 400 status code with an empty error and message in the response body."
@@ -274,7 +350,7 @@
 					"response": []
 				},
 				{
-					"name": "ChangePassword",
+					"name": "ChangePassword (Admin, Manager, Driver)",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -311,7 +387,7 @@
 					"response": []
 				},
 				{
-					"name": "DeleteUser",
+					"name": "DeleteUser (Admin, Manager)",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -326,37 +402,31 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{auth-microservice-url}}api/users/delete-user?id=2",
+							"raw": "{{auth-microservice-url}}api/users/6",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
 							"path": [
 								"users",
-								"delete-user"
-							],
-							"query": [
-								{
-									"key": "id",
-									"value": "2"
-								}
+								"6"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "AllUsersList",
+					"name": "GetById",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{auth-microservice-url}}api/users/all-users-list",
+							"raw": "{{auth-microservice-url}}api/users/1",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
 							"path": [
 								"users",
-								"all-users-list"
+								"1"
 							]
 						}
 					},

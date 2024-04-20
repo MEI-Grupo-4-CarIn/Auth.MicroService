@@ -21,6 +21,7 @@ namespace Auth.MicroService.WebApi.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
+        private const int MaxPerPage = 100;
         private readonly IUsersService _usersService;
 
         /// <summary>
@@ -33,69 +34,125 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
-        /// Gets the list of users waiting for approval.
+        /// Gets a list of users.
         /// </summary>
         /// <param name="ct">The cancellation token.</param>
+        /// <param name="search">The search text.</param>
+        /// <param name="page">The page to be requested.</param>
+        /// <param name="perPage">The amount of items requested per page.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin, Manager")]
-        [HttpGet("waiting-for-approval-list")]
-        public async Task<ActionResult> GetUsersForApproval(CancellationToken ct)
-        {
-            var usersList = await _usersService.GetAllUsersForApproval(ct);
-
-            return Ok(usersList.Any() ? usersList : "No users waiting for approval.");
-        }
-
-        /// <summary>
-        /// Allows the administrator or manager to approve one user.
-        /// </summary>
-        /// <param name="model">The model.</param>
-        /// <param name="ct">The cancellation token.</param>
-        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin, Manager")]
-        [HttpPost("approve-user")]
-        public async Task<ActionResult> ApproveUser(PostApproveUserModel model, CancellationToken ct)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserInfo>>> GetAllUsers(CancellationToken ct,
+            [FromQuery] string search,
+            [FromQuery] int perPage = 10,
+            [FromQuery] int page = 1)
         {
             try
             {
-                var approveUserModel = UserMapper.PostApproveUserModelToApproveUserModel(model);
-
-                string token = GetTokenFromHeader();
-
-                await _usersService.ApproveUser(approveUserModel, token, ct);
-
-                Log.Information($"User with id '{model.Id}' approved with success.");
-                return Ok($"User with id '{model.Id}' approved with success.");
+                if (perPage > MaxPerPage)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(perPage), $"The maximum number of items per page is {MaxPerPage}.");
+                }
+                
+                var usersList = await _usersService.GetAllUsers(search, page, perPage, ct);
+                return Ok(usersList.Any() ? usersList : "No users to show.");
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while approving user with id '{model.Id}'.");
                 return BadRequest(new ErrorResponseModel
                 {
-                    Error = $"Error while approving user with id '{model.Id}'.",
+                    Error = "An error occurred while retrieving users.",
                     Message = ex.Message
                 });
             }
         }
 
         /// <summary>
-        /// Allows every user to update their information.
+        /// Gets the list of users waiting for approval.
         /// </summary>
+        /// <param name="ct">The cancellation token.</param>
+        /// <param name="page">The page to be requested.</param>
+        /// <param name="perPage">The amount of items requested per page.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpGet("waiting-for-approval")]
+        public async Task<ActionResult> GetUsersForApproval(CancellationToken ct,
+            [FromQuery] int page = 1,
+            [FromQuery] int perPage = 10)
+        {
+            try
+            {
+                if (perPage > MaxPerPage)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(perPage), $"The maximum number of items per page is {MaxPerPage}.");
+                }
+            
+                var usersList = await _usersService.GetAllUsersForApproval(page, perPage,ct);
+
+                return Ok(usersList.Any() ? usersList : "No users waiting for approval.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = "An error occurred while retrieving users.",
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Allows the administrator or manager to approve one user.
+        /// </summary>
+        /// <param name="id">The user id.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <param name="roleId">The role to apply.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpPost("{id:int}/approval")]
+        public async Task<ActionResult> ApproveUser(int id, CancellationToken ct,
+            [FromQuery] int? roleId)
+        {
+            try
+            {
+                string token = GetTokenFromHeader();
+
+                await _usersService.ApproveUser(id, roleId, token, ct);
+
+                Log.Information($"User with id '{id}' approved with success.");
+                return Ok($"User with id '{id}' approved with success.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while approving user with id '{id}'.");
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"Error while approving user with id '{id}'.",
+                    Message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// Updates an user information.
+        /// </summary>
+        /// <param name="id">The user id.</param>
         /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager, Driver")]
-        [HttpPatch("update-user-info")]
-        public async Task<ActionResult> UpdateUserInfo(PatchUpdateUserModel model, CancellationToken ct)
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> UpdateUserInfo(int id,
+            PatchUpdateUserModel model,
+            CancellationToken ct)
         {
             try
             {
                 var updateUserModel = UserMapper.PatchUpdateUserModelToUpdateUserModel(model);
 
-                // Get the token to identify the user and then update it's own information
+                // Get the token to identify the user
                 string token = GetTokenFromHeader();
-
-                string email = await _usersService.UpdateUserInfo(updateUserModel, token, ct);
+                string email = await _usersService.UpdateUserInfo(id, updateUserModel, token, ct);
 
                 Log.Information($"User with email '{email}' updated with success.");
                 return Ok($"User with email '{email}' updated with success.");
@@ -145,14 +202,14 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
-        /// Delete a user.
+        /// Deletes a user by id.
         /// </summary>
         /// <param name="id">The user id.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager")]
-        [HttpDelete("delete-user")]
-        public async Task<ActionResult> DeleteUser(int id, CancellationToken ct)
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> DeleteUserById(int id, CancellationToken ct)
         {
             try
             {
@@ -174,24 +231,12 @@ namespace Auth.MicroService.WebApi.Controllers
         }
 
         /// <summary>
-        /// List all users.
-        /// </summary>
-        /// <param name="ct">The cancellation token.</param>
-        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [HttpGet("all-users-list")]
-        public async Task<ActionResult<IEnumerable<UserInfo>>> GetAllUsers(CancellationToken ct)
-        {
-            var usersList = await _usersService.GetAllUsers(ct);
-            return Ok(usersList.Any() ? usersList : "No users to show.");
-        }
-
-        /// <summary>
-        /// Get user by id.
+        /// Gets a user by id.
         /// </summary>
         /// <param name="id">The user id.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [HttpGet("get-by-id")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<UserInfo>> GetUserById(int id, CancellationToken ct)
         {
             try
