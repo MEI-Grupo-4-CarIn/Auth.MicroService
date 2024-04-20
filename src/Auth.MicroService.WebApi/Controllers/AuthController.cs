@@ -7,6 +7,7 @@ using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Auth.MicroService.WebApi.Controllers
 {
@@ -42,7 +43,6 @@ namespace Auth.MicroService.WebApi.Controllers
         public async Task<ActionResult> Register(PostRegisterModel model, CancellationToken ct)
         {
             var registerModel = UserMapper.PostRegisterModelToRegisterModel(model);
-
             try
             {
                 await _authService.UserRegistration(registerModel, ct);
@@ -72,11 +72,13 @@ namespace Auth.MicroService.WebApi.Controllers
         public async Task<ActionResult<string>> Login(PostLoginModel model, CancellationToken ct)
         {
             var loginModel = UserMapper.PostLoginModelToLoginModel(model);
-            string token;
-
             try
             {
-                token = await _authService.UserLogin(loginModel, ct);
+                var tokenModel = await _authService.UserLogin(loginModel, ct);
+
+                Log.Information("User '{Email}' has logging in successfully.", loginModel.Email);
+
+                return Ok(tokenModel);
             }
             catch (Exception ex)
             {
@@ -87,10 +89,41 @@ namespace Auth.MicroService.WebApi.Controllers
                     Message = ex.Message
                 });
             }
+        }
+        
+        /// <summary>
+        /// Logouts a user.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <param name="ct">The cancellation token.</param>
+        /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
+        [Authorize(Roles = "Admin, Manager, Driver")]
+        [HttpPost("logout")]
+        public async Task<ActionResult<string>> Logout(PostLogoutModel model, CancellationToken ct)
+        {
+            var logoutModel = UserMapper.PostLogoutModelToLogoutModel(model);
+            try
+            {
+                var token = GetTokenFromHeader();
+                var userId = await _authService.UserLogout(logoutModel, token, ct);
 
-            Log.Information("User '{Email}' has logging in successfully.", loginModel.Email);
-
-            return Ok(new { Token = token });
+                if (userId is null)
+                {
+                    return Ok();
+                }
+                
+                Log.Information("User '{Id}' has logged out successfully.", userId.Value);
+                return Ok("Logged out successfully.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while logging the user out.");
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = $"An error occurred while logging the user out.",
+                    Message = ex.Message
+                });
+            }
         }
 
         /// <summary>
@@ -102,15 +135,12 @@ namespace Auth.MicroService.WebApi.Controllers
         [HttpPost("forgotPassword")]
         public async Task<ActionResult> ForgotPassword(PostForgotPasswordModel model, CancellationToken ct)
         {
-            if (model is null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
-
             try
             {
-                var token = await _authService.GeneratePasswordResetToken(model.Email, ct);
-                await _emailService.SendPasswordResetEmail(model.Email, token, ct);
+                ArgumentNullException.ThrowIfNull(model);
+                
+                var tokenModel = await _authService.GeneratePasswordResetToken(model.Email, ct);
+                await _emailService.SendPasswordResetEmail(model.Email, tokenModel.Token, ct);
             }
             catch (Exception ex)
             {
@@ -136,15 +166,12 @@ namespace Auth.MicroService.WebApi.Controllers
         [HttpPost("resetPassword")]
         public async Task<ActionResult> ResetPassword(PostResetPasswordModel model, CancellationToken ct)
         {
-            if (model is null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
-
             string email;
 
             try
             {
+                ArgumentNullException.ThrowIfNull(model);
+                
                 var resetPasswordModel = UserMapper.PostResetPasswordModelToResetPasswordModel(model);
 
                 email = await _authService.ResetPassword(resetPasswordModel, ct);
@@ -166,47 +193,61 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <summary>
         /// Validates one token.
         /// </summary>
-        /// <param name="token">The token.</param>
+        /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("validateToken")]
-        public ActionResult ValidateToken(string token, CancellationToken ct)
+        public ActionResult ValidateToken(PostValidateTokenModel model, CancellationToken ct)
         {
-            var isValid = _authService.ValidateToken(token, ct);
-
-            if (isValid)
-            {
-                Log.Information("A token has been successfully validated.");
-                return Ok(new { Message = "Token is valid." });
-            }
-            else
+            var isValid = _authService.ValidateToken(model.Token, ct);
+            if (!isValid)
             {
                 return BadRequest(new ErrorResponseModel
                 {
-                    Error = $"An error occurred while sending the request.",
-                    Message = "Invalid token"
+                    Error = "An error occurred while sending the request.",
+                    Message = "Invalid token."
                 });
             }
+            
+            Log.Information("A token has been successfully validated.");
+            return Ok(new { Message = "Token is valid." });
         }
 
         /// <summary>
         /// Refreshes one token.
         /// </summary>
-        /// <param name="token">The token.</param>
+        /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("refreshToken")]
-        public async Task<ActionResult<string>> RefreshToken(string token, CancellationToken ct)
+        public async Task<ActionResult<string>> RefreshToken(PostRefreshTokenModel model, CancellationToken ct)
         {
-            var newToken = await _authService.RefreshToken(token, ct);
-
-            if (newToken is not null)
+            try
             {
-                return Ok(new { Token = newToken });
+                var newTokenModel = await _authService.RefreshOneToken(model.RefreshToken, ct);
+                return Ok(newTokenModel);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while refreshing the token.");
+                return BadRequest(new ErrorResponseModel
+                {
+                    Error = "An error occurred while refreshing the token.",
+                    Message = ex.Message
+                });
+            }
+        }
+        
+        private string GetTokenFromHeader()
+        {
+            if (HttpContext.Request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                var token = authHeader.ToString().Split(' ')[1]; // Bearer <token>
+                return token;
             }
             else
             {
-                return Unauthorized();
+                throw new Exception("Authorization header not found");
             }
         }
     }
