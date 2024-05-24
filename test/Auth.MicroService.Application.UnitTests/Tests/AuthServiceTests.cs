@@ -110,12 +110,7 @@ namespace Auth.MicroService.Application.UnitTests.Tests
                 true
             );
 
-            var tokenModel = new TokenModel
-            {
-                Token = "token",
-                ExpiresIn = 1234567890,
-                RefreshToken = "refreshToken"
-            };
+            var tokenModel = new TokenModel("token", "refreshToken", 1234567890);
 
             _userRepositoryMock.Setup(x => x.GetUserByEmail(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
             _passwordHasherMock.Setup(x => x.VerifyHashedPassword(user, user.Password, model.Password)).Returns(PasswordVerificationResult.Success);
@@ -142,12 +137,7 @@ namespace Auth.MicroService.Application.UnitTests.Tests
                 new DateTime(1990, 1, 1)
             );
             
-            var tokenModel = new TokenModel
-            {
-                Token = "token",
-                ExpiresIn = 1234567890,
-                RefreshToken = "refreshToken"
-            };
+            var tokenModel = new TokenModel("token", "refreshToken", 1234567890);
 
             _userRepositoryMock.Setup(x => x.GetUserByEmail(email, It.IsAny<CancellationToken>())).ReturnsAsync(user);
             _jwtProviderMock.Setup(x => x.GeneratePasswordResetToken(user)).Returns(tokenModel);
@@ -218,12 +208,7 @@ namespace Auth.MicroService.Application.UnitTests.Tests
                 new DateTime(1990, 1, 1)
             );
     
-            var tokenModel = new TokenModel
-            {
-                Token = "newToken",
-                ExpiresIn = 1234567890,
-                RefreshToken = refreshToken
-            };
+            var tokenModel = new TokenModel("token", refreshToken, 1234567890);
 
             var refreshTokenEntity =
                 RefreshToken.CreateRefreshTokenForTests(
