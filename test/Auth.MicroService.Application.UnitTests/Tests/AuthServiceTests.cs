@@ -111,6 +111,15 @@ namespace Auth.MicroService.Application.UnitTests.Tests
             );
 
             var tokenModel = new TokenModel("token", "refreshToken", 1234567890);
+            var authResponseModel = new AuthResponseModel(
+                user.UserId.Value,
+                user.Email,
+                user.FirstName,
+                user.LastName,
+                user.RoleId,
+                tokenModel.Token,
+                tokenModel.RefreshToken,
+                tokenModel.ExpiresIn);
 
             _userRepositoryMock.Setup(x => x.GetUserByEmail(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
             _passwordHasherMock.Setup(x => x.VerifyHashedPassword(user, user.Password, model.Password)).Returns(PasswordVerificationResult.Success);
@@ -120,7 +129,7 @@ namespace Auth.MicroService.Application.UnitTests.Tests
             var result = await _authService.UserLogin(model, CancellationToken.None);
 
             // Assert
-            Assert.AreEqual(tokenModel, result);
+            Assert.AreEqual(authResponseModel, result);
         }
 
         [TestMethod]
