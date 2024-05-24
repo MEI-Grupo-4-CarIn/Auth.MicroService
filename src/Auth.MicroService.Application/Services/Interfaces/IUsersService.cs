@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
 using Auth.MicroService.Application.Models;
+using Auth.MicroService.Domain.Enums;
 
 namespace Auth.MicroService.Application.Services.Interfaces
 {
@@ -62,11 +63,17 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// Gets a list with the users.
         /// </summary>
         /// <param name="search">The search text.</param>
+        /// <param name="role">The role filter.</param>
         /// <param name="page">The page to be requested.</param>
         /// <param name="perPage">The amount of items requested per page.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A list of users.</returns>
-        Task<IEnumerable<UserInfoResponseModel>> GetUsersList(string search, int page, int perPage, CancellationToken ct);
+        Task<IEnumerable<UserInfoResponseModel>> GetUsersList(
+            string search,
+            Role? role,
+            int page,
+            int perPage,
+            CancellationToken ct);
 
         /// <summary>
         /// Gets a specific user.

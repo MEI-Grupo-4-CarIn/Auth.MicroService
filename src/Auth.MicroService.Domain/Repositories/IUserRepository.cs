@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Auth.MicroService.Domain.Enums;
 
 namespace Auth.MicroService.Domain.Repositories
 {
@@ -17,7 +18,12 @@ namespace Auth.MicroService.Domain.Repositories
 
         Task<string> UpdateUser(User user, CancellationToken ct);
 
-        Task<IEnumerable<UserInfo>> GetUsersList(string search, int page, int perPage, CancellationToken ct);
+        Task<IEnumerable<UserInfo>> GetUsersList(
+            string search,
+            Role? role,
+            int page,
+            int perPage,
+            CancellationToken ct);
 
         Task<UserInfo> GetUserInfoById(int id, CancellationToken ct);
     }

@@ -204,9 +204,14 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<UserInfoResponseModel>> GetUsersList(string search, int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<UserInfoResponseModel>> GetUsersList(
+            string search,
+            Role? role,
+            int page,
+            int perPage,
+            CancellationToken ct)
         {
-            var users = await _userRepository.GetUsersList(search, page, perPage, ct);
+            var users = await _userRepository.GetUsersList(search, role, page, perPage, ct);
 
             return UserMapper.UserInfoToUserInfoResponseModel(users);
         }

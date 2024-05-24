@@ -1,4 +1,5 @@
-﻿using Auth.MicroService.Domain.Entities;
+﻿using System;
+using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Enums;
 using Auth.MicroService.Domain.Extensions;
 using Auth.MicroService.Domain.Repositories;
@@ -94,22 +95,30 @@ namespace Auth.MicroService.Infrastructure.Repositories
             return existingUser.Email;
         }
 
-        public async Task<IEnumerable<UserInfo>> GetUsersList(string search, int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<UserInfo>> GetUsersList(
+            string search,
+            Role? role,
+            int page,
+            int perPage,
+            CancellationToken ct)
         {
             int skip = (page - 1) * perPage;
-
             var query = _authDbContext.Set<User>()
                 .AsNoTracking();
 
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(u => u.FirstName.ToLower().Contains(search.ToLower())
-                                         || u.LastName.ToLower().Contains(search.ToLower())
-                                         || u.Email.ToLower().Contains(search.ToLower()));
+                search = search.ToLower();
+                query = query.Where(u => u.FirstName.ToLower().Contains(search)
+                                         || u.LastName.ToLower().Contains(search)
+                                         || u.Email.ToLower().Contains(search));
+            }
+            if (role is not null)
+            {
+                query = query.Where(u => u.RoleId == role);
             }
 
             query = query.Skip(skip).Take(perPage);
-
             return await query
                 .Select(u => new UserInfo
                 {
