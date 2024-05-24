@@ -7,7 +7,9 @@ using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Auth.MicroService.Application.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace Auth.MicroService.WebApi.Controllers
 {
@@ -40,6 +42,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Register(PostRegisterModel model, CancellationToken ct)
         {
             var registerModel = UserMapper.PostRegisterModelToRegisterModel(model);
@@ -69,16 +73,18 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(PostLoginModel model, CancellationToken ct)
+        [ProducesResponseType(typeof(AuthResponseModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<AuthResponseModel>> Login(PostLoginModel model, CancellationToken ct)
         {
             var loginModel = UserMapper.PostLoginModelToLoginModel(model);
             try
             {
-                var tokenModel = await _authService.UserLogin(loginModel, ct);
+                var authResponseModel = await _authService.UserLogin(loginModel, ct);
 
                 Log.Information("User '{Email}' has logging in successfully.", loginModel.Email);
 
-                return Ok(tokenModel);
+                return Ok(authResponseModel);
             }
             catch (Exception ex)
             {
@@ -99,6 +105,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager, Driver")]
         [HttpPost("logout")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<string>> Logout(PostLogoutModel model, CancellationToken ct)
         {
             var logoutModel = UserMapper.PostLogoutModelToLogoutModel(model);
@@ -133,6 +141,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("forgotPassword")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> ForgotPassword(PostForgotPasswordModel model, CancellationToken ct)
         {
             try
@@ -164,6 +174,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("resetPassword")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> ResetPassword(PostResetPasswordModel model, CancellationToken ct)
         {
             string email;
@@ -197,6 +209,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("validateToken")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public ActionResult ValidateToken(PostValidateTokenModel model, CancellationToken ct)
         {
             var isValid = _authService.ValidateToken(model.Token, ct);
@@ -220,6 +234,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("refreshToken")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<string>> RefreshToken(PostRefreshTokenModel model, CancellationToken ct)
         {
             try

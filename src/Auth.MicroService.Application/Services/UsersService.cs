@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Auth.MicroService.Application.Mapping;
 
 namespace Auth.MicroService.Application.Services
 {
@@ -39,9 +40,11 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<UserInfo>> GetAllUsersForApproval(int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<UserInfoResponseModel>> GetUsersForApprovalList(int page, int perPage, CancellationToken ct)
         {
-            return await _userRepository.GetAllInactiveUsers(page, perPage, ct);
+            var users = await _userRepository.GetInactiveUsersList(page, perPage, ct);
+
+            return UserMapper.UserInfoToUserInfoResponseModel(users);
         }
 
         /// <inheritdoc/>
@@ -201,13 +204,15 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<UserInfo>> GetAllUsers(string search, int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<UserInfoResponseModel>> GetUsersList(string search, int page, int perPage, CancellationToken ct)
         {
-            return await _userRepository.GetAllUsers(search, page, perPage, ct);
+            var users = await _userRepository.GetUsersList(search, page, perPage, ct);
+
+            return UserMapper.UserInfoToUserInfoResponseModel(users);
         }
 
         /// <inheritdoc/>
-        public async Task<UserInfo> GetUserById(int id, CancellationToken ct)
+        public async Task<UserInfoResponseModel> GetUserById(int id, CancellationToken ct)
         {
             var user = await _userRepository.GetUserInfoById(id, ct);
             if(user is null)
@@ -215,7 +220,14 @@ namespace Auth.MicroService.Application.Services
                 throw new Exception("User not found.");
             }
 
-            return user;
+            return new UserInfoResponseModel(
+                user.UserId,
+                user.UserFullName,
+                user.Email,
+                user.Role,
+                user.Status,
+                user.CreationDate,
+                user.LastUpdateDate);
         }
 
         private static void CheckUserHierarchy(Role userRole, Role roleToApply, bool isDelete = false)

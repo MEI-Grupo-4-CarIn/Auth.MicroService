@@ -18,7 +18,7 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="perPage">The amount of items requested per page.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A list of users.</returns>
-        Task<IEnumerable<UserInfo>> GetAllUsersForApproval(int page, int perPage, CancellationToken ct);
+        Task<IEnumerable<UserInfoResponseModel>> GetUsersForApprovalList(int page, int perPage, CancellationToken ct);
 
         /// <summary>
         /// Performs the approval of a user.
@@ -66,7 +66,7 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="perPage">The amount of items requested per page.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A list of users.</returns>
-        Task<IEnumerable<UserInfo>> GetAllUsers(string search, int page, int perPage, CancellationToken ct);
+        Task<IEnumerable<UserInfoResponseModel>> GetUsersList(string search, int page, int perPage, CancellationToken ct);
 
         /// <summary>
         /// Gets a specific user.
@@ -74,6 +74,6 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="id">The user id.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>The user info.</returns>
-        Task<UserInfo> GetUserById(int id, CancellationToken ct);
+        Task<UserInfoResponseModel> GetUserById(int id, CancellationToken ct);
     }
 }

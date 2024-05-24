@@ -61,7 +61,7 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<TokenModel> UserLogin(LoginModel model, CancellationToken ct)
+        public async Task<AuthResponseModel> UserLogin(LoginModel model, CancellationToken ct)
         {
             ArgumentNullException.ThrowIfNull(model);
 
@@ -95,7 +95,15 @@ namespace Auth.MicroService.Application.Services
             
             ResetFailedLoginAttempt(model.Email);
             
-            return tokenModel;
+            return new AuthResponseModel(
+                user.UserId.Value,
+                user.Email,
+                user.FirstName,
+                user.LastName,
+                user.RoleId,
+                tokenModel.Token,
+                tokenModel.RefreshToken,
+                tokenModel.ExpiresIn);
         }
 
         public async Task<int?> UserLogout(LogoutModel model, string token, CancellationToken ct)
@@ -190,12 +198,10 @@ namespace Auth.MicroService.Application.Services
                 DateTime.UtcNow.AddDays(30),
                 ct);
             
-            return new TokenModel
-            {
-                Token = tokenModel.Token,
-                ExpiresIn = tokenModel.ExpiresIn,
-                RefreshToken = refreshTokenEntity.Token
-            };
+            return new TokenModel(
+                tokenModel.Token,
+                refreshTokenEntity.Token,
+                tokenModel.ExpiresIn);
         }
 
         private void IncrementFailedLoginAttempt(string email)

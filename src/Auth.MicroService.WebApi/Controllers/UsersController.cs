@@ -1,5 +1,4 @@
 ﻿using Auth.MicroService.Application.Services.Interfaces;
-using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.WebApi.Mapping;
 using Auth.MicroService.WebApi.Models;
 using Auth.MicroService.WebApi.Models.Response;
@@ -11,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Auth.MicroService.Application.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Auth.MicroService.WebApi.Controllers
 {
@@ -42,7 +43,9 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="perPage">The amount of items requested per page.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserInfo>>> GetAllUsers(CancellationToken ct,
+        [ProducesResponseType(typeof(IEnumerable<UserInfoResponseModel>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<UserInfoResponseModel>>> GetUsersList(CancellationToken ct,
             [FromQuery] string search,
             [FromQuery] int perPage = 10,
             [FromQuery] int page = 1)
@@ -54,7 +57,7 @@ namespace Auth.MicroService.WebApi.Controllers
                     throw new ArgumentOutOfRangeException(nameof(perPage), $"The maximum number of items per page is {MaxPerPage}.");
                 }
                 
-                var usersList = await _usersService.GetAllUsers(search, page, perPage, ct);
+                var usersList = await _usersService.GetUsersList(search, page, perPage, ct);
                 return Ok(usersList.Any() ? usersList : "No users to show.");
             }
             catch (Exception ex)
@@ -76,7 +79,9 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager")]
         [HttpGet("waiting-for-approval")]
-        public async Task<ActionResult> GetUsersForApproval(CancellationToken ct,
+        [ProducesResponseType(typeof(IEnumerable<UserInfoResponseModel>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<UserInfoResponseModel>>> GetUsersForApproval(CancellationToken ct,
             [FromQuery] int page = 1,
             [FromQuery] int perPage = 10)
         {
@@ -87,7 +92,7 @@ namespace Auth.MicroService.WebApi.Controllers
                     throw new ArgumentOutOfRangeException(nameof(perPage), $"The maximum number of items per page is {MaxPerPage}.");
                 }
             
-                var usersList = await _usersService.GetAllUsersForApproval(page, perPage,ct);
+                var usersList = await _usersService.GetUsersForApprovalList(page, perPage,ct);
 
                 return Ok(usersList.Any() ? usersList : "No users waiting for approval.");
             }
@@ -110,6 +115,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager")]
         [HttpPost("{id:int}/approval")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> ApproveUser(int id, CancellationToken ct,
             [FromQuery] int? roleId)
         {
@@ -142,6 +149,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager, Driver")]
         [HttpPatch("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> UpdateUserInfo(int id,
             PatchUpdateUserModel model,
             CancellationToken ct)
@@ -176,6 +185,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager, Driver")]
         [HttpPost("change-password")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> ChangePassword(PostChangePasswordModel model, CancellationToken ct)
         {
             try
@@ -209,6 +220,8 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [Authorize(Roles = "Admin, Manager")]
         [HttpDelete("{id:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> DeleteUserById(int id, CancellationToken ct)
         {
             try
@@ -237,7 +250,9 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<UserInfo>> GetUserById(int id, CancellationToken ct)
+        [ProducesResponseType(typeof(UserInfoResponseModel),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<UserInfoResponseModel>> GetUserById(int id, CancellationToken ct)
         {
             try
             {

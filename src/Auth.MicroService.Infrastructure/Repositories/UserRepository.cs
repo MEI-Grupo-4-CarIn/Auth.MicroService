@@ -13,6 +13,8 @@ namespace Auth.MicroService.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
+        private const string DefaultAdminEmail = "admin@email.com";
+        
         private readonly AuthDbContext _authDbContext;
 
         public UserRepository(AuthDbContext authDbContext)
@@ -22,9 +24,9 @@ namespace Auth.MicroService.Infrastructure.Repositories
 
         public async Task AddNewUser(User user, CancellationToken ct)
         {
-            var databaseHasActiveUsers = await this.DatabaseHasActiveUsers(ct);
+            var databaseHasDefaultAdmin = await this.DatabaseHasDefaultAdminUser(ct);
 
-            if (!databaseHasActiveUsers)
+            if (!databaseHasDefaultAdmin && user.Email.Equals(DefaultAdminEmail))
             {
                 // Set the first user to be Admin and Status = true
                 user = User.SetUserActivation(user, Role.Admin, status: true);
@@ -47,7 +49,7 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 .SingleOrDefaultAsync(u => u.UserId == id, ct);
         }
 
-        public async Task<IEnumerable<UserInfo>> GetAllInactiveUsers(int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<UserInfo>> GetInactiveUsersList(int page, int perPage, CancellationToken ct)
         {
             int skip = (page - 1) * perPage;
             
@@ -92,7 +94,7 @@ namespace Auth.MicroService.Infrastructure.Repositories
             return existingUser.Email;
         }
 
-        public async Task<IEnumerable<UserInfo>> GetAllUsers(string search, int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<UserInfo>> GetUsersList(string search, int page, int perPage, CancellationToken ct)
         {
             int skip = (page - 1) * perPage;
 
@@ -145,10 +147,14 @@ namespace Auth.MicroService.Infrastructure.Repositories
             };
         }
 
-        private async Task<bool> DatabaseHasActiveUsers(CancellationToken ct)
+        private async Task<bool> DatabaseHasDefaultAdminUser(CancellationToken ct)
         {
             return await _authDbContext.Set<User>()
-                .AnyAsync(u => u.Status == true, ct);
+                .AnyAsync(u => 
+                    u.Email.Equals(DefaultAdminEmail)
+                    && u.RoleId == Role.Admin
+                    && u.Status == true,
+                    ct);
         }
     }
 }

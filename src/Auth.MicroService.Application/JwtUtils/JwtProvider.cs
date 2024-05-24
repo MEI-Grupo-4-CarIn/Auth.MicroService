@@ -112,12 +112,10 @@ namespace Auth.MicroService.Application.JwtUtils
                 DateTime.UtcNow.AddSeconds(LongExpireSeconds),
                 signingCredentials);
 
-            return new TokenModel
-            {
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
-                ExpiresIn = LongExpireSeconds,
-                RefreshToken = needsRefreshToken ? GenerateRefreshToken() : null
-            };
+            return new TokenModel(
+                new JwtSecurityTokenHandler().WriteToken(token),
+                needsRefreshToken ? GenerateRefreshToken() : null,
+                LongExpireSeconds);
         }
         
         private static string GenerateRefreshToken()
