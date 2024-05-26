@@ -23,7 +23,7 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="model">The login model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        Task<AuthResponseModel> UserLogin(LoginModel model, CancellationToken ct);
+        Task<TokenModel> UserLogin(LoginModel model, CancellationToken ct);
 
         /// <summary>
         /// Performs one user logout.

@@ -73,18 +73,18 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("login")]
-        [ProducesResponseType(typeof(AuthResponseModel), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(TokenModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<AuthResponseModel>> Login(PostLoginModel model, CancellationToken ct)
+        public async Task<ActionResult<TokenModel>> Login(PostLoginModel model, CancellationToken ct)
         {
             var loginModel = UserMapper.PostLoginModelToLoginModel(model);
             try
             {
-                var authResponseModel = await _authService.UserLogin(loginModel, ct);
+                var tokenModel = await _authService.UserLogin(loginModel, ct);
 
                 Log.Information("User '{Email}' has logging in successfully.", loginModel.Email);
 
-                return Ok(authResponseModel);
+                return Ok(tokenModel);
             }
             catch (Exception ex)
             {

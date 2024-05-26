@@ -13,7 +13,6 @@ namespace Auth.MicroService.Application.JwtUtils
 {
     public sealed class JwtProvider : IJwtProvider
     {
-        private const string EmailClaimType = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
         private const int LongExpireSeconds = 600; // 10 minutes
 
         private readonly IConfiguration _configuration;
@@ -28,8 +27,10 @@ namespace Auth.MicroService.Application.JwtUtils
             var claims = new Claim[]
             {
                new("id", user.UserId.Value.ToString()),
-               new(JwtRegisteredClaimNames.Email, user.Email),
-               new Claim(ClaimTypes.Role, user.RoleId.ToString())
+               new("email", user.Email),
+               new("firstName", user.FirstName),
+               new("lastName", user.LastName),
+               new ("role", ((int)user.RoleId).ToString())
             };
 
             return GenerateToken(claims, needsRefreshToken);
@@ -39,8 +40,8 @@ namespace Auth.MicroService.Application.JwtUtils
         {
             var claims = new Claim[]
             {
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim("isPasswordReset", "true")
+                new ("Email", user.Email),
+                new ("isPasswordReset", "true")
             };
 
             return GenerateToken(claims, false);
@@ -55,7 +56,7 @@ namespace Auth.MicroService.Application.JwtUtils
         {
             return ValidateTokenByClaim(
                 token,
-                EmailClaimType,
+                "Email",
                 isPasswordReset: true);
         }
 
@@ -71,10 +72,8 @@ namespace Auth.MicroService.Application.JwtUtils
             {
                 return userId;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         public Role? GetUserRoleFromToken(string token)
@@ -83,16 +82,13 @@ namespace Auth.MicroService.Application.JwtUtils
             var jwtToken = tokenHandler.ReadJwtToken(token);
 
             // Get the user role from the token
-            var userRoleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
-
+            var userRoleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type.Equals("Role", StringComparison.Ordinal));
             if (userRoleClaim is not null && Enum.TryParse<Role>(userRoleClaim.Value, out var role))
             {
                 return role;
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         private TokenModel GenerateToken(Claim[] claims, bool needsRefreshToken)

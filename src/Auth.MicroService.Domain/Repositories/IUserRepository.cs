@@ -14,17 +14,15 @@ namespace Auth.MicroService.Domain.Repositories
 
         Task<User> GetUserById(int id, CancellationToken ct);
 
-        Task<IEnumerable<UserInfo>> GetInactiveUsersList(int page, int perPage, CancellationToken ct);
+        Task<IEnumerable<User>> GetInactiveUsersList(int page, int perPage, CancellationToken ct);
 
         Task<string> UpdateUser(User user, CancellationToken ct);
 
-        Task<IEnumerable<UserInfo>> GetUsersList(
+        Task<IEnumerable<User>> GetUsersList(
             string search,
             Role? role,
             int page,
             int perPage,
             CancellationToken ct);
-
-        Task<UserInfo> GetUserInfoById(int id, CancellationToken ct);
     }
 }

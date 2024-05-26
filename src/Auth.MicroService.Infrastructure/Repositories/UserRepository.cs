@@ -1,7 +1,5 @@
-﻿using System;
-using Auth.MicroService.Domain.Entities;
+﻿using Auth.MicroService.Domain.Entities;
 using Auth.MicroService.Domain.Enums;
-using Auth.MicroService.Domain.Extensions;
 using Auth.MicroService.Domain.Repositories;
 using Auth.MicroService.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -50,23 +48,14 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 .SingleOrDefaultAsync(u => u.UserId == id, ct);
         }
 
-        public async Task<IEnumerable<UserInfo>> GetInactiveUsersList(int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<User>> GetInactiveUsersList(int page, int perPage, CancellationToken ct)
         {
             int skip = (page - 1) * perPage;
             
             return await _authDbContext.Set<User>()
                 .AsNoTracking()
                 .Where(u => u.Status == false)
-                .Select(u => new UserInfo
-                {
-                    UserId = u.UserId.Value,
-                    UserFullName = $"{u.FirstName} {u.LastName}",
-                    Email = u.Email,
-                    Role = u.RoleId.GetDescription(),
-                    Status = u.Status,
-                    CreationDate = u.CreationDateUtc.ToString("g"),
-                    LastUpdateDate = u.LastUpdateDateUtc.HasValue ? u.LastUpdateDateUtc.Value.ToString("g") : "No updates",
-                })
+                .OrderByDescending(u => u.UserId)
                 .Skip(skip)
                 .Take(perPage)
                 .ToListAsync(ct);
@@ -95,7 +84,7 @@ namespace Auth.MicroService.Infrastructure.Repositories
             return existingUser.Email;
         }
 
-        public async Task<IEnumerable<UserInfo>> GetUsersList(
+        public async Task<IEnumerable<User>> GetUsersList(
             string search,
             Role? role,
             int page,
@@ -105,6 +94,8 @@ namespace Auth.MicroService.Infrastructure.Repositories
             int skip = (page - 1) * perPage;
             var query = _authDbContext.Set<User>()
                 .AsNoTracking();
+
+            query = query.Where(u => u.Status == true);
 
             if (!string.IsNullOrEmpty(search))
             {
@@ -118,42 +109,13 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 query = query.Where(u => u.RoleId == role);
             }
 
-            query = query.Skip(skip).Take(perPage);
+            query = query
+                .OrderByDescending(u => u.UserId)
+                .Skip(skip)
+                .Take(perPage);
+
             return await query
-                .Select(u => new UserInfo
-                {
-                    UserId = u.UserId.Value,
-                    UserFullName = $"{u.FirstName} {u.LastName}",
-                    Email = u.Email,
-                    Role = u.RoleId.GetDescription(),
-                    Status = u.Status,
-                    CreationDate = u.CreationDateUtc.ToString("g"),
-                    LastUpdateDate = u.LastUpdateDateUtc.HasValue ? u.LastUpdateDateUtc.Value.ToString("g") : "No updates",
-                })
                 .ToListAsync(ct);
-        }
-
-        public async Task<UserInfo> GetUserInfoById(int id, CancellationToken ct)
-        {
-            var user = await _authDbContext.Set<User>()
-                .AsNoTracking()
-                .SingleOrDefaultAsync(u => u.UserId == id, ct);
-            
-            if (user is null)
-            {
-                return null;
-            }
-
-            return new UserInfo
-            {
-                UserId = user.UserId.Value,
-                UserFullName = $"{user.FirstName} {user.LastName}",
-                Email = user.Email,
-                Role = user.RoleId.GetDescription(),
-                Status = user.Status,
-                CreationDate = user.CreationDateUtc.ToString("g"),
-                LastUpdateDate = user.LastUpdateDateUtc.HasValue ? user.LastUpdateDateUtc.Value.ToString("g") : "No updates",
-            };
         }
 
         private async Task<bool> DatabaseHasDefaultAdminUser(CancellationToken ct)

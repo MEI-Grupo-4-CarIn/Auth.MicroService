@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Auth.MicroService.Application.Mapping;
@@ -44,7 +45,7 @@ namespace Auth.MicroService.Application.Services
         {
             var users = await _userRepository.GetInactiveUsersList(page, perPage, ct);
 
-            return UserMapper.UserInfoToUserInfoResponseModel(users);
+            return users.Select(UserMapper.UserToUserInfoResponseModel);
         }
 
         /// <inheritdoc/>
@@ -213,26 +214,28 @@ namespace Auth.MicroService.Application.Services
         {
             var users = await _userRepository.GetUsersList(search, role, page, perPage, ct);
 
-            return UserMapper.UserInfoToUserInfoResponseModel(users);
+            return users.Select(UserMapper.UserToUserInfoResponseModel);
         }
 
         /// <inheritdoc/>
         public async Task<UserInfoResponseModel> GetUserById(int id, CancellationToken ct)
         {
-            var user = await _userRepository.GetUserInfoById(id, ct);
+            var user = await _userRepository.GetUserById(id, ct);
             if(user is null)
             {
                 throw new Exception("User not found.");
             }
 
             return new UserInfoResponseModel(
-                user.UserId,
-                user.UserFullName,
+                user.UserId.Value,
+                user.FirstName,
+                user.LastName,
                 user.Email,
-                user.Role,
+                user.BirthDate,
+                user.RoleId.ToString(),
                 user.Status,
-                user.CreationDate,
-                user.LastUpdateDate);
+                user.CreationDateUtc,
+                user.LastUpdateDateUtc);
         }
 
         private static void CheckUserHierarchy(Role userRole, Role roleToApply, bool isDelete = false)

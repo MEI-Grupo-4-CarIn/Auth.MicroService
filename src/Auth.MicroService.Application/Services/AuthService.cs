@@ -61,7 +61,7 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<AuthResponseModel> UserLogin(LoginModel model, CancellationToken ct)
+        public async Task<TokenModel> UserLogin(LoginModel model, CancellationToken ct)
         {
             ArgumentNullException.ThrowIfNull(model);
 
@@ -90,20 +90,12 @@ namespace Auth.MicroService.Application.Services
                 user.UserId.Value,
                 tokenModel.RefreshToken,
                 DateTime.UtcNow.AddDays(30));
-            
+
             await _refreshTokenRepository.AddNewRefreshToken(refreshToken, ct);
-            
+
             ResetFailedLoginAttempt(model.Email);
-            
-            return new AuthResponseModel(
-                user.UserId.Value,
-                user.Email,
-                user.FirstName,
-                user.LastName,
-                user.RoleId,
-                tokenModel.Token,
-                tokenModel.RefreshToken,
-                tokenModel.ExpiresIn);
+
+            return tokenModel;
         }
 
         public async Task<int?> UserLogout(LogoutModel model, string token, CancellationToken ct)
