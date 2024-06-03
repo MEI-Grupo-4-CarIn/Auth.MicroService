@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Auth.MicroService.Application.Mapping;
 
 namespace Auth.MicroService.Application.Services
 {
@@ -37,7 +38,7 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task UserRegistration(RegisterModel model, CancellationToken ct)
+        public async Task<UserInfoResponseModel> UserRegistration(RegisterModel model, CancellationToken ct)
         {
             ArgumentNullException.ThrowIfNull(model);
 
@@ -57,7 +58,9 @@ namespace Auth.MicroService.Application.Services
 
             var userToInsert = User.SetUserHashedPassword(user, _passwordHasher.HashPassword(user, user.Password));
 
-            await _userRepository.AddNewUser(userToInsert, ct);
+            var newUser = await _userRepository.AddNewUser(userToInsert, ct);
+
+            return UserMapper.UserToUserInfoResponseModel(newUser);
         }
 
         /// <inheritdoc/>
@@ -90,11 +93,11 @@ namespace Auth.MicroService.Application.Services
                 user.UserId.Value,
                 tokenModel.RefreshToken,
                 DateTime.UtcNow.AddDays(30));
-            
+
             await _refreshTokenRepository.AddNewRefreshToken(refreshToken, ct);
-            
+
             ResetFailedLoginAttempt(model.Email);
-            
+
             return tokenModel;
         }
 
@@ -190,12 +193,10 @@ namespace Auth.MicroService.Application.Services
                 DateTime.UtcNow.AddDays(30),
                 ct);
             
-            return new TokenModel
-            {
-                Token = tokenModel.Token,
-                ExpiresIn = tokenModel.ExpiresIn,
-                RefreshToken = refreshTokenEntity.Token
-            };
+            return new TokenModel(
+                tokenModel.Token,
+                refreshTokenEntity.Token,
+                tokenModel.ExpiresIn);
         }
 
         private void IncrementFailedLoginAttempt(string email)

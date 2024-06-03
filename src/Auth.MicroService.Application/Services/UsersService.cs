@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Auth.MicroService.Application.Mapping;
 
 namespace Auth.MicroService.Application.Services
 {
@@ -39,9 +41,11 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<UserInfo>> GetAllUsersForApproval(int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<UserInfoResponseModel>> GetUsersForApprovalList(int page, int perPage, CancellationToken ct)
         {
-            return await _userRepository.GetAllInactiveUsers(page, perPage, ct);
+            var users = await _userRepository.GetInactiveUsersList(page, perPage, ct);
+
+            return users.Select(UserMapper.UserToUserInfoResponseModel);
         }
 
         /// <inheritdoc/>
@@ -201,21 +205,28 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<UserInfo>> GetAllUsers(string search, int page, int perPage, CancellationToken ct)
+        public async Task<IEnumerable<UserInfoResponseModel>> GetUsersList(
+            string search,
+            Role? role,
+            int page,
+            int perPage,
+            CancellationToken ct)
         {
-            return await _userRepository.GetAllUsers(search, page, perPage, ct);
+            var users = await _userRepository.GetUsersList(search, role, page, perPage, ct);
+
+            return users.Select(UserMapper.UserToUserInfoResponseModel);
         }
 
         /// <inheritdoc/>
-        public async Task<UserInfo> GetUserById(int id, CancellationToken ct)
+        public async Task<UserInfoResponseModel> GetUserById(int id, CancellationToken ct)
         {
-            var user = await _userRepository.GetUserInfoById(id, ct);
+            var user = await _userRepository.GetUserById(id, ct);
             if(user is null)
             {
                 throw new Exception("User not found.");
             }
 
-            return user;
+            return UserMapper.UserToUserInfoResponseModel(user);
         }
 
         private static void CheckUserHierarchy(Role userRole, Role roleToApply, bool isDelete = false)
