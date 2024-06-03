@@ -1,10 +1,4 @@
-using System;
-
-namespace Auth.MicroService.Application.Models;
-
-public class TokenModel
+namespace Auth.MicroService.Application.Models
 {
-    public string Token { get; init; }
-    public long ExpiresIn { get; init; }
-    public string RefreshToken { get; init; }     
+    public record TokenModel(string Token, string RefreshToken, long ExpiresIn);
 }

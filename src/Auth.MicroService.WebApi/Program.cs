@@ -8,7 +8,6 @@ using Auth.MicroService.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,15 +38,6 @@ namespace Auth.MicroService.WebApi
             var builder = WebApplication.CreateBuilder(args);
 
             var config = builder.Configuration;
-
-            builder.Services.AddRateLimiter(options =>
-            {
-                options.AddFixedWindowLimiter("Fixed", opt =>
-                {
-                    opt.Window = TimeSpan.FromSeconds(5);
-                    opt.PermitLimit = 3;
-                });
-            });
 
             Log.Logger = new LoggerConfiguration()
                .WriteTo.Console()
@@ -105,8 +95,6 @@ namespace Auth.MicroService.WebApi
 
             var app = builder.Build();
 
-            app.UseRateLimiter();
-
             // Apply migrations
             using (var scope = app.Services.CreateScope())
             {
@@ -133,10 +121,8 @@ namespace Auth.MicroService.WebApi
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers().RequireRateLimiting("Fixed");
 
             app.Run();
