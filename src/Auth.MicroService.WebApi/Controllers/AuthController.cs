@@ -234,9 +234,9 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpPost("refreshToken")]
-        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(TokenModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<string>> RefreshToken(PostRefreshTokenModel model, CancellationToken ct)
+        public async Task<ActionResult<TokenModel>> RefreshToken(PostRefreshTokenModel model, CancellationToken ct)
         {
             try
             {
