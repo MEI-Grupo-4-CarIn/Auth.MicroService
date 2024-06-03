@@ -59,7 +59,17 @@ namespace Auth.MicroService.Application.UnitTests.Tests
                 BirthDate = new DateTime(1999, 1, 20)
             };
 
-            _userRepositoryMock.Setup(x => x.AddNewUser(It.IsAny<User>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+            var user = User.CreateUserForTests(
+                "Test", 
+                "Test", 
+                "test@email.com", 
+                "abcd123456", 
+                new DateTime(1990, 1, 1),
+                Role.Driver,
+                true
+            );
+
+            _userRepositoryMock.Setup(x => x.AddNewUser(It.IsAny<User>(), It.IsAny<CancellationToken>())).ReturnsAsync(user);
 
             // Act
             await _authService.UserRegistration(model, CancellationToken.None);
