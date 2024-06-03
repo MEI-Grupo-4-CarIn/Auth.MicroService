@@ -226,16 +226,7 @@ namespace Auth.MicroService.Application.Services
                 throw new Exception("User not found.");
             }
 
-            return new UserInfoResponseModel(
-                user.UserId.Value,
-                user.FirstName,
-                user.LastName,
-                user.Email,
-                user.BirthDate,
-                user.RoleId.ToString(),
-                user.Status,
-                user.CreationDateUtc,
-                user.LastUpdateDateUtc);
+            return UserMapper.UserToUserInfoResponseModel(user);
         }
 
         private static void CheckUserHierarchy(Role userRole, Role roleToApply, bool isDelete = false)

@@ -21,9 +21,9 @@ namespace Auth.MicroService.Infrastructure.Repositories
             _authDbContext = authDbContext;
         }
 
-        public async Task AddNewUser(User user, CancellationToken ct)
+        public async Task<User> AddNewUser(User user, CancellationToken ct)
         {
-            var databaseHasDefaultAdmin = await this.DatabaseHasDefaultAdminUser(ct);
+            var databaseHasDefaultAdmin = await DatabaseHasDefaultAdminUser(ct);
 
             if (!databaseHasDefaultAdmin && user.Email.Equals(DefaultAdminEmail))
             {
@@ -32,6 +32,8 @@ namespace Auth.MicroService.Infrastructure.Repositories
             }
             await _authDbContext.Set<User>().AddAsync(user, ct);
             await _authDbContext.SaveChangesAsync(ct);
+
+            return user;
         }
 
         public async Task<User> GetUserByEmail(string email, CancellationToken ct)
