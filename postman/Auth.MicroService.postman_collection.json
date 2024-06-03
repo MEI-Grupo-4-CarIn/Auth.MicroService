@@ -159,20 +159,23 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"string\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{auth-microservice-url}}api/auth/validateToken?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImExNDg1OEBhbHVub3MuaXBjYS5wdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxNzk3MjI3LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.YeXddEJske3QCqk256DZDQL1poGNkgvcLYBWvzLWc6M",
+							"raw": "{{auth-microservice-url}}api/auth/validateToken",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
 							"path": [
 								"auth",
 								"validateToken"
-							],
-							"query": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6ImExNDg1OEBhbHVub3MuaXBjYS5wdCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzAxNzk3MjI3LCJpc3MiOiJBdXRoLk1pY3JvU2VydmljZSIsImF1ZCI6IkF1dGguTWljcm9TZXJ2aWNlIn0.YeXddEJske3QCqk256DZDQL1poGNkgvcLYBWvzLWc6M"
-								}
 							]
 						}
 					},
@@ -183,20 +186,23 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"k1SyFvRoePcwXwU3mpPTPJus247OS4xHUeuoneL2aps=\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{auth-microservice-url}}api/auth/refreshToken?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTcwMTYzNDM1OSwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9._x1je-Tcpmr8nqFwAwA8NPFPtmk8Fb4H2MX0PNy8dJ0",
+							"raw": "{{auth-microservice-url}}api/auth/refreshToken",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
 							"path": [
 								"auth",
 								"refreshToken"
-							],
-							"query": [
-								{
-									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJlbWFpbCI6InJhZmFlbDEyM0BlbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTcwMTYzNDM1OSwiaXNzIjoiQXV0aC5NaWNyb1NlcnZpY2UiLCJhdWQiOiJBdXRoLk1pY3JvU2VydmljZSJ9._x1je-Tcpmr8nqFwAwA8NPFPtmk8Fb4H2MX0PNy8dJ0"
-								}
 							]
 						}
 					},
@@ -213,7 +219,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{auth-microservice-url}}api/users?page=1&search=admin",
+							"raw": "{{auth-microservice-url}}api/users",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
@@ -224,7 +230,8 @@
 								{
 									"key": "page",
 									"value": "1",
-									"description": "Optional Parameter"
+									"description": "Optional Parameter",
+									"disabled": true
 								},
 								{
 									"key": "perPage",
@@ -234,8 +241,15 @@
 								},
 								{
 									"key": "search",
-									"value": "admin",
-									"description": "Optional Parameter"
+									"value": "Fernandes",
+									"description": "Optional Parameter",
+									"disabled": true
+								},
+								{
+									"key": "role",
+									"value": "manager",
+									"description": "Optional Parameter",
+									"disabled": true
 								}
 							]
 						}
@@ -298,7 +312,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{auth-microservice-url}}api/users/3/approval",
+							"raw": "{{auth-microservice-url}}api/users/3/approval?roleId=2",
 							"host": [
 								"{{auth-microservice-url}}api"
 							],
@@ -306,6 +320,13 @@
 								"users",
 								"3",
 								"approval"
+							],
+							"query": [
+								{
+									"key": "roleId",
+									"value": "2",
+									"description": "// Optional, Default = 3 (Driver)"
+								}
 							]
 						}
 					},
