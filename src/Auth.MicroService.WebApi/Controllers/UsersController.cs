@@ -86,7 +86,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="page">The page to be requested.</param>
         /// <param name="perPage">The amount of items requested per page.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize(Roles = "1, 2")]
         [HttpGet("waiting-for-approval")]
         [ProducesResponseType(typeof(IEnumerable<UserInfoResponseModel>),StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -127,7 +127,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="ct">The cancellation token.</param>
         /// <param name="roleId">The role to apply.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize(Roles = "1, 2")]
         [HttpPost("{id:int}/approval")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
@@ -161,7 +161,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin, Manager, Driver")]
+        [Authorize(Roles = "1, 2, 3")]
         [HttpPatch("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
@@ -197,7 +197,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin, Manager, Driver")]
+        [Authorize(Roles = "1, 2, 3")]
         [HttpPost("change-password")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
@@ -232,7 +232,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="id">The user id.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin, Manager")]
+        [Authorize(Roles = "1, 2")]
         [HttpDelete("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
