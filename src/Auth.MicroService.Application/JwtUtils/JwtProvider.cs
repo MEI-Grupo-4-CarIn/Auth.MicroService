@@ -82,7 +82,7 @@ namespace Auth.MicroService.Application.JwtUtils
             var jwtToken = tokenHandler.ReadJwtToken(token);
 
             // Get the user role from the token
-            var userRoleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type.Equals("Role", StringComparison.Ordinal));
+            var userRoleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type.Equals("role", StringComparison.OrdinalIgnoreCase));
             if (userRoleClaim is not null && Enum.TryParse<Role>(userRoleClaim.Value, out var role))
             {
                 return role;
