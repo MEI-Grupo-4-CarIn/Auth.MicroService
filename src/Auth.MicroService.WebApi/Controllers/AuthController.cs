@@ -106,7 +106,7 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="model">The model.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
-        [Authorize(Roles = "Admin, Manager, Driver")]
+        [Authorize(Roles = "1, 2, 3")]
         [HttpPost("logout")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]

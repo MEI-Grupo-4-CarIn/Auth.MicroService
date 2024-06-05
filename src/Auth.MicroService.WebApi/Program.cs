@@ -123,7 +123,7 @@ namespace Auth.MicroService.WebApi
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapControllers().RequireRateLimiting("Fixed");
+            app.MapControllers();
 
             app.Run();
         }
