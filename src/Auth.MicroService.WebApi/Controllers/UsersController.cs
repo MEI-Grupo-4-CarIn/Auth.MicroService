@@ -45,10 +45,10 @@ namespace Auth.MicroService.WebApi.Controllers
         /// <param name="perPage">The amount of items requested per page.</param>
         /// <returns>An <see cref="ActionResult"/> indicating the result of the operation.</returns>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<UserInfoResponseModel>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PaginatedResponseModel<UserInfoResponseModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ErrorResponseModel), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<UserInfoResponseModel>>> GetUsersList(CancellationToken ct,
+        public async Task<ActionResult<PaginatedResponseModel<UserInfoResponseModel>>> GetUsersList(CancellationToken ct,
             [FromQuery] string search,
             [FromQuery] Role? role,
             [FromQuery] int perPage = 10,
@@ -60,9 +60,9 @@ namespace Auth.MicroService.WebApi.Controllers
                 {
                     throw new ArgumentOutOfRangeException(nameof(perPage), $"The maximum number of items per page is {MaxPerPage}.");
                 }
-                
+        
                 var usersList = await _usersService.GetUsersList(search, role, page, perPage, ct);
-                if (usersList.Any())
+                if (usersList.Data.Any())
                 {
                     return Ok(usersList);
                 }

@@ -205,16 +205,26 @@ namespace Auth.MicroService.Application.Services
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<UserInfoResponseModel>> GetUsersList(
+        public async Task<PaginatedResponseModel<UserInfoResponseModel>> GetUsersList(
             string search,
             Role? role,
             int page,
             int perPage,
             CancellationToken ct)
         {
-            var users = await _userRepository.GetUsersList(search, role, page, perPage, ct);
+            var (users, totalCount) = await _userRepository.GetUsersList(search, role, page, perPage, ct);
 
-            return users.Select(UserMapper.UserToUserInfoResponseModel);
+            var userModels = users.Select(UserMapper.UserToUserInfoResponseModel);
+
+            return new PaginatedResponseModel<UserInfoResponseModel>
+            (
+                userModels,
+                new PaginationMeta(
+                    totalCount,
+                    (int)Math.Ceiling(totalCount / (double)perPage),
+                    page,
+                    perPage)
+            );
         }
 
         /// <inheritdoc/>

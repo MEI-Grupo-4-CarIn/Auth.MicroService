@@ -68,7 +68,7 @@ namespace Auth.MicroService.Application.Services.Interfaces
         /// <param name="perPage">The amount of items requested per page.</param>
         /// <param name="ct">The cancellation token.</param>
         /// <returns>A list of users.</returns>
-        Task<IEnumerable<UserInfoResponseModel>> GetUsersList(
+        Task<PaginatedResponseModel<UserInfoResponseModel>> GetUsersList(
             string search,
             Role? role,
             int page,

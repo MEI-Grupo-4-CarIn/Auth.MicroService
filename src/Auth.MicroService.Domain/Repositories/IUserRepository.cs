@@ -18,7 +18,7 @@ namespace Auth.MicroService.Domain.Repositories
 
         Task<string> UpdateUser(User user, CancellationToken ct);
 
-        Task<IEnumerable<User>> GetUsersList(
+        Task<(IEnumerable<User> Users, int TotalCount)> GetUsersList(
             string search,
             Role? role,
             int page,
