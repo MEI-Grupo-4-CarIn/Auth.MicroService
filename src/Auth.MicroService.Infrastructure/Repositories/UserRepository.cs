@@ -86,7 +86,7 @@ namespace Auth.MicroService.Infrastructure.Repositories
             return existingUser.Email;
         }
 
-        public async Task<IEnumerable<User>> GetUsersList(
+        public async Task<(IEnumerable<User> Users, int TotalCount)> GetUsersList(
             string search,
             Role? role,
             int page,
@@ -111,13 +111,15 @@ namespace Auth.MicroService.Infrastructure.Repositories
                 query = query.Where(u => u.RoleId == role);
             }
 
-            query = query
+            var totalCount = await query.CountAsync(ct);
+
+            var users = await query
                 .OrderByDescending(u => u.UserId)
                 .Skip(skip)
-                .Take(perPage);
-
-            return await query
+                .Take(perPage)
                 .ToListAsync(ct);
+
+            return (users, totalCount);
         }
 
         private async Task<bool> DatabaseHasDefaultAdminUser(CancellationToken ct)
